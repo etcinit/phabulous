@@ -4,7 +4,7 @@
   },
   "slack": {
     "username": "phabricator",
-    "url": "https://hooks.slack.com/services/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"
+    "url": "https://hooks.slack.com/services/xxxxx/xxxxxx/xxxxxx"
   },
   "conduit": {
     "user": "etcinit",
@@ -12,6 +12,6 @@
     "cert": ""
   },
   "misc": {
-    "ignore-ca": true
+    "ignore-ca": false
   }
 }
