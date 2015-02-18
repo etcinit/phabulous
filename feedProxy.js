@@ -16,20 +16,23 @@ app.use(function(req, res, next){
     }));
 });
 
+app.use(function(req, res, next) {
+    req.body = Qs.parse(req.raw.toString('utf-8'));
+    next();
+});
+
 app.post('/', function(req, res){
     res.send('OK');
 
-    //superagent
-    //    .post(config.get('slack.url'))
-    //    .send({
-    //        "username": config.get('slack.username'),
-    //        "text": req.body.storyText
-    //    })
-    //    .end(function(error, res){
-    //
-    //    });
+    superagent
+        .post(config.get('slack.url'))
+        .send({
+            "username": config.get('slack.username'),
+            "text": req.body.storyText
+        })
+        .end(function(error, res){
 
-    console.log(Qs.parse(req.raw.toString('utf-8')));
+        });
 
     console.log(req.raw.toString('utf-8'));
 });
