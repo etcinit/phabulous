@@ -27,8 +27,8 @@ of the webhook.
 6. If everything is working fine, add an entry to your Phabricator's config to
 call the webhook. The URL should be the address and port of the server you are
 running the bot in. Example for bot running in the same server as Phabricator:
-js
-```
+
+```js
     //...
     "feed.http-hooks": [
         "http://localhost:8085"
