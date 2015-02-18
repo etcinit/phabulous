@@ -63,7 +63,9 @@ app.post('/', function(req, res){
                 .post(config.get('slack.url'))
                 .send({
                     "username": config.get('slack.username'),
-                    "text": req.body.storyText + " <" + data.uri + "More info>"
+                    "text":
+                        req.body.storyText +
+                        " (<" + data.uri + "|More info>)"
                 })
                 .end(function(error, res){
 
