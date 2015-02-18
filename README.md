@@ -23,7 +23,7 @@ contents of `default.json`. Place your Phabricator username, url, and
 certificate under the `user`, `api`, `cert` keys respectively under the
 `conduit` key. In the `slack` key, set a username for the bot and a the url
 of the webhook.
-5. Start the server: `node feedProxy` and check for errors
+5. Start the server: `NODE_ENV=production node feedProxy` and check for errors
 6. If everything is working fine, add an entry to your Phabricator's config to
 call the webhook. The URL should be the address and port of the server you are
 running the bot in. Example for bot running in the same server as Phabricator:
@@ -35,3 +35,10 @@ js
     ]
     //...
 ```
+
+## Misc
+
+### Self-signed certificates
+
+If you are using self-signed certificates for your Phabricator instance, you
+can disable checking at your own risk by setting `misc.ignore-ca` to `true`
