@@ -5,5 +5,10 @@
   "slack": {
     "username": "phabricator",
     "url": "https://hooks.slack.com/services/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"
+  },
+  "conduit": {
+    "user": "etcinit",
+    "api": "",
+    "cert": ""
   }
 }
