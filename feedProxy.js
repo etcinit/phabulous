@@ -1,10 +1,12 @@
 var express = require('express'),
     bodyParser = require('body-parser'),
     config = require('config'),
-    concat = require('concat-stream');
+    concat = require('concat-stream'),
+    superagent = require('superagent');
 
 var app = express();
 
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(function(req, res, next){
     req.pipe(concat(function(data){
@@ -16,7 +18,17 @@ app.use(function(req, res, next){
 app.post('/', function(req, res){
     res.send('OK');
 
-    console.log(req.raw.toString('utf8'));
+    superagent
+        .post(config.get('slack.url'))
+        .send({
+            "username": config.get('slack.username'),
+            "text": req.body.storyText
+        })
+        .end(function(error, res){
+
+        });
+
+    console.log(req.body);
 });
 
 app.listen(Number(config.get('server.port')));
