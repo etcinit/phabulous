@@ -1,7 +1,9 @@
 # Phabricator Slack Bridge
 
 This small server will forward news feed items from Phabricator into a Slack
-channel
+channel:
+
+![Example](http://i.imgur.com/128Gkjw.png)
 
 ## Requirements
 
