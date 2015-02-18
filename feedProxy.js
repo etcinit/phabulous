@@ -16,7 +16,7 @@ app.use(function(req, res, next){
 app.post('/', function(req, res){
     res.send('OK');
 
-    console.log(req.raw);
+    console.log(req.raw.toString('utf8'));
 });
 
 app.listen(Number(config.get('server.port')));
