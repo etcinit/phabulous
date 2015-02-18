@@ -1,15 +1,22 @@
 var express = require('express'),
     bodyParser = require('body-parser'),
-    config = require('config');
+    config = require('config'),
+    concat = require('concat-stream');
 
 var app = express();
 
 app.use(bodyParser.json());
+app.use(function(req, res, next){
+    req.pipe(concat(function(data){
+        req.raw = data;
+        next();
+    }));
+});
 
-app.post('/feed', function(req, res){
+app.post('/', function(req, res){
     res.send('OK');
 
-    console.log(req.body);
+    console.log(req.raw);
 });
 
 app.listen(Number(config.get('server.port')));
