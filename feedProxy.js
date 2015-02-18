@@ -6,8 +6,8 @@ var express = require('express'),
 
 var app = express();
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded({ extended: true }));
+//app.use(bodyParser.json());
 app.use(function(req, res, next){
     req.pipe(concat(function(data){
         req.raw = data;
@@ -28,7 +28,7 @@ app.post('/', function(req, res){
     //
     //    });
 
-    console.log(req.body);
+    console.log(req.raw.toString('utf-8'));
 });
 
 app.listen(Number(config.get('server.port')));
