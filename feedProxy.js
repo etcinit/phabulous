@@ -10,7 +10,9 @@ var app = express(),
     conduit,
     fetchPhidData;
 
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+if (config.get('misc.ignore-ca')) {
+    process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+}
 
 conduit = Canduit(config.get('conduit'), function (err) {
     if (err) {

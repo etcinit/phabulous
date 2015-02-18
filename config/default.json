@@ -10,5 +10,8 @@
     "user": "etcinit",
     "api": "",
     "cert": ""
+  },
+  "misc": {
+    "ignore-ca": true
   }
 }
