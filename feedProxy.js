@@ -1,7 +1,8 @@
 var express = require('express'),
-    bodyParser = require('body-parser');
+    bodyParser = require('body-parser'),
+    config = require('config');
 
-var app = express.createServer();
+var app = express();
 
 app.use(bodyParser.json());
 
@@ -11,5 +12,8 @@ app.post('/feed', function(req, res){
     console.log(req.body);
 });
 
-app.listen();
-console.log('Express server started on port %s', app.address().port);
+app.listen(Number(config.get('server.port')));
+console.log(
+    'Phabricator-Slack connector server started on port %s',
+    config.get('server.port')
+);
