@@ -2,11 +2,12 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     config = require('config'),
     concat = require('concat-stream'),
+    Qs = require('qs');
     superagent = require('superagent');
 
 var app = express();
 
-app.use(bodyParser.urlencoded({ extended: true }));
+//app.use(bodyParser.urlencoded({ extended: true }));
 //app.use(bodyParser.json());
 app.use(function(req, res, next){
     req.pipe(concat(function(data){
@@ -27,6 +28,8 @@ app.post('/', function(req, res){
     //    .end(function(error, res){
     //
     //    });
+
+    console.log(Qs.parse(req.raw.toString('utf-8')));
 
     console.log(req.raw.toString('utf-8'));
 });
