@@ -8,26 +8,12 @@
 class IndexController
 {
     /**
-     * Construct an instance of an IndexController
-     *
-     * @param Config
-     * @param Slack_Poster
-     * @param Conduit_PhidFetcher
-     */
-    constructor (Config, Slack_Poster, Conduit_PhidFetcher)
-    {
-        this.config = Config;
-        this.poster = Slack_Poster;
-        this.fetcher = Conduit_PhidFetcher;
-    }
-
-    /**
      * POST /
      *
      * @param req
      * @param res
      */
-    postIndex (req, res)
+    static postIndex (req, res)
     {
         res.send('OK');
 

@@ -1,7 +1,8 @@
 'use strict';
 
 let Concat = use('Http/Middleware/Concat'),
-    Qs = use('Http/Middleware/Qs');
+    Qs = use('Http/Middleware/Qs'),
+    IndexController = use('Http/Controllers/IndexController');
 
 let express = require('express');
 
@@ -32,8 +33,7 @@ class Server
         this.exp.use(Concat.handle);
         this.exp.use(Qs.handle);
 
-        let indexController = container.make('Http/Controllers/IndexController');
-        this.exp.post('/', indexController.postIndex);
+        this.exp.post('/', IndexController.postIndex);
     }
 
     /**
