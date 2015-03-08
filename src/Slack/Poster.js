@@ -29,7 +29,7 @@ class Poster
     send (username, message, callback)
     {
         superagent
-            .post(config.get('slack.url'))
+            .post(this.config.get('slack.url'))
             .send({
                 username: username,
                 message: message
