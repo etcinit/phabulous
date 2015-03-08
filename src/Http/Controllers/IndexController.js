@@ -32,21 +32,10 @@ class IndexController
         res.send('OK');
 
         if (req.body.storyData && req.body.storyData.objectPHID) {
-            // Now, we fetch additional information from Conduit
-            this.fetcher.go(req.body.storyData.objectPHID, (err, data) => {
-                // If we have a URI, add it to the message
-                if (data.uri) {
-                    this.poster.send(
-                        this.config.get('slack.username'),
-                        req.body.storyText + " (<" + data.uri + "|More info>)"
-                    );
-                } else {
-                    this.poster.send(
-                        this.config.get('slack.username'),
-                        req.body.storyText
-                    );
-                }
-            });
+            var processor = container.make('FeedProcessor');
+
+            // Defer processing to a service
+            processor.handle(req.body);
         }
 
         // Some debug
