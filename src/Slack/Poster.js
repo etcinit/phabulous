@@ -32,7 +32,7 @@ class Poster
             .post(this.config.get('slack.url'))
             .send({
                 username: username,
-                message: message
+                text: message
             })
             .end(function(error, res){
                 if (callback) {
