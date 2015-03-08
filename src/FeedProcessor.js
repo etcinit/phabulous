@@ -29,7 +29,7 @@ class FeedProcessor
     handle (reqBody)
     {
         // Now, we fetch additional information from Conduit
-        this.fetcher.go(reqBody.storyData.objectPHID, (err, data) => {
+        this.fetcher.fetch(reqBody.storyData.objectPHID, (err, data) => {
             // If we have a URI, add it to the message
             if (data.uri) {
                 this.poster.send(

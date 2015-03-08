@@ -30,7 +30,7 @@ class App
         this.cahelper.setup();
 
         // Begin setting up the app
-        this.canduit.make(function (conduit) {
+        this.canduit.make(function (err, conduit) {
             // Register Conduit service
             container.instance('Conduit', conduit);
 

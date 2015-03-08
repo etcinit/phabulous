@@ -23,7 +23,7 @@ class PhidFetcher
      * @param phid
      * @param callback
      */
-    go (phid, callback)
+    fetch (phid, callback)
     {
         this.conduit.exec(
             'phid.query',

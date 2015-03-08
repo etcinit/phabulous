@@ -28,15 +28,21 @@ class Canduit
      */
     make (callback)
     {
-        return canduit(this.config.get('conduit'), function (err) {
+        return canduit(this.config.get('conduit'), function (err, canduit) {
             if (err) {
                 throw err;
             }
 
-            console.log('Successfully connected to Phabricator over Conduit');
+            if (canduit) {
+                console.log(
+                    'Successfully connected to Phabricator over Conduit'
+                );
 
-            if (callback) {
-                callback();
+                if (callback) {
+                    callback(err, canduit);
+                }
+            } else {
+                throw new Error('Something went wrong connecting to Conduit');
             }
         });
     }
