@@ -23,7 +23,12 @@ func (f *FeedController) Register(r *gin.RouterGroup) {
 }
 
 func (f *FeedController) postReceive(c *gin.Context) {
-	conduit, err := gonduit.Dial(f.Config.GetString("conduit.api"))
+	conduit, err := gonduit.Dial(
+		f.Config.GetString("conduit.api"),
+		&gonduit.ClientOptions{
+			InsecureSkipVerify: f.Config.GetBool("misc.ignore-ca"),
+		},
+	)
 
 	if err != nil {
 		panic(err)
