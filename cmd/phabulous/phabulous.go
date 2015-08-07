@@ -57,6 +57,21 @@ func main() {
 			Action:  phabulous.Serve.Run,
 		},
 		{
+			Name: "slack",
+			Subcommands: []cli.Command{
+				{
+					Name:   "test",
+					Usage:  "Test that the slackbot works",
+					Action: phabulous.SlackWorkbench.SendTestMessage,
+				},
+				{
+					Name:   "resolveCommitChannel",
+					Usage:  "Test that that a commit can correctly be resolved into a channel",
+					Action: phabulous.SlackWorkbench.ResolveCommitChannel,
+				},
+			},
+		},
+		{
 			Name: "diffusion",
 			Subcommands: []cli.Command{
 				{

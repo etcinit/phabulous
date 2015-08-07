@@ -8,7 +8,7 @@ conduit:
   api: ''
   cert: ''
 channels:
-  feed: phabricator
+  feed: '#phabricator'
   repositories:
     CALLSIGN: channel
     OTHERCALLSIGN: otherchannel
