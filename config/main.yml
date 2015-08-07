@@ -1,0 +1,11 @@
+server:
+  port: 8085
+slack:
+  token: YOUR_TOKEN_HERE
+  username: phabulous
+conduit:
+  user: etcinit
+  api: ''
+  cert: ''
+misc:
+  ignore-ca: false
