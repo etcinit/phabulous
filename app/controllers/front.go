@@ -13,7 +13,7 @@ func (f *FrontController) Register(r *gin.Engine) {
 		front.GET("/healthcheck", f.getHealthCheck)
 	}
 
-	r.NotFound404(f.getNotFound)
+	r.NoRoute(f.getNotFound)
 }
 
 func (f *FrontController) getIndex(c *gin.Context) {
