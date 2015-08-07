@@ -46,7 +46,13 @@ func (f *FeedController) postReceive(c *gin.Context) {
 	c.Request.ParseForm()
 	spew.Dump(c.Request.PostForm)
 
-	//res, err := conduit.PHIDQuerySingle(c.Request.Get(""))
+	res, err := conduit.PHIDQuerySingle(string(c.Request.PostForm.Get("storyData[objectPHID]")[0]))
+
+	if err != nil {
+		panic(err)
+	}
+
+	spew.Dump(res)
 
 	c.JSON(200, gin.H{
 		"status": "success",
