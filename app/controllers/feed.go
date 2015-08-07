@@ -40,11 +40,18 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		panic(err)
 	}
 
+	storyText := c.Request.PostForm.Get("storyText")
+
+	if res.URI != "" {
+		storyText += " (<" + res.URI + "|More info>)"
+	}
+
 	f.Slacker.Slack.PostMessage(
 		f.Config.GetString("channels.feed"),
-		c.Request.PostForm.Get("storyText"),
+		storyText,
 		slack.PostMessageParameters{
 			Username: f.Config.GetString("slack.username"),
+			IconURL:  "http://i.imgur.com/7Hzgo9Y.png",
 		},
 	)
 
@@ -52,9 +59,10 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		if channelName, _ := f.Commits.Resolve(res.Name); channelName != "" {
 			f.Slacker.Slack.PostMessage(
 				channelName,
-				c.Request.PostForm.Get("storyText"),
+				storyText,
 				slack.PostMessageParameters{
 					Username: f.Config.GetString("slack.username"),
+					IconURL:  "http://i.imgur.com/v8ReRKx.png",
 				},
 			)
 		}
