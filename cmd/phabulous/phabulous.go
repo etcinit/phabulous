@@ -26,7 +26,10 @@ func main() {
 		&inject.Object{Value: config},
 		&inject.Object{Value: &phabulous},
 	)
-	g.Populate()
+	if err := g.Populate(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 
 	// Boot the upper layers of the app.
 	phabulous.Boot()

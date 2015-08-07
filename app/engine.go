@@ -7,8 +7,8 @@ import (
 
 // EngineService provides the API engine
 type EngineService struct {
-	Front controllers.FrontController `inject:""`
-	Feed  controllers.FeedController  `inject:""`
+	Front controllers.FrontController `inject:"inline"`
+	Feed  controllers.FeedController  `inject:"inline"`
 }
 
 // New creates a new instance of an API engine
