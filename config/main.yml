@@ -7,5 +7,10 @@ conduit:
   user: etcinit
   api: ''
   cert: ''
+channels:
+  feed: phabricator
+  repositories:
+    CALLSIGN: channel
+    OTHERCALLSIGN: otherchannel
 misc:
   ignore-ca: false

@@ -56,6 +56,22 @@ func main() {
 			Usage:   "starts the API server",
 			Action:  phabulous.Serve.Run,
 		},
+		{
+			Name: "diffusion",
+			Subcommands: []cli.Command{
+				{
+					Name:   "queryCommitsByName",
+					Usage:  "Query commits by name",
+					Action: phabulous.Diffusion.QueryCommitsByName,
+				},
+
+				{
+					Name:   "queryRepositoriesByCallsign",
+					Usage:  "Query repositories by callsign",
+					Action: phabulous.Diffusion.QueryRepositoriesByCallsign,
+				},
+			},
+		},
 	}
 
 	// Begin
