@@ -15,6 +15,7 @@ type FeedController struct {
 	Slacker *slacker.SlackService     `inject:""`
 	Factory *factories.GonduitFactory `inject:""`
 	Commits *resolvers.CommitResolver `inject:""`
+	Tasks   *resolvers.TaskResolver   `inject:""`
 }
 
 // Register registers the route handlers for this controller
@@ -63,6 +64,17 @@ func (f *FeedController) postReceive(c *gin.Context) {
 				slack.PostMessageParameters{
 					Username: f.Config.GetString("slack.username"),
 					IconURL:  "http://i.imgur.com/v8ReRKx.png",
+				},
+			)
+		}
+	} else if res.Type == "TASK" {
+		if channelName, _ := f.Tasks.Resolve(res.PHID); channelName != "" {
+			f.Slacker.Slack.PostMessage(
+				channelName,
+				storyText,
+				slack.PostMessageParameters{
+					Username: f.Config.GetString("slack.username"),
+					IconURL:  "http://i.imgur.com/7Hzgo9Y.png",
 				},
 			)
 		}

@@ -12,5 +12,7 @@ channels:
   repositories:
     CALLSIGN: channel
     OTHERCALLSIGN: otherchannel
+  projects:
+    10: anotherchannel
 misc:
   ignore-ca: false

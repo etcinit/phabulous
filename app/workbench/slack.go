@@ -16,6 +16,7 @@ type SlackWorkbenchService struct {
 	Slacker *slacker.SlackService     `inject:""`
 	Factory *factories.GonduitFactory `inject:""`
 	Commits *resolvers.CommitResolver `inject:""`
+	Tasks   *resolvers.TaskResolver   `inject:""`
 }
 
 // SendTestMessage sends a test message to the feeds channel.
@@ -37,6 +38,18 @@ func (s *SlackWorkbenchService) SendTestMessage(c *cli.Context) {
 // posted to.
 func (s *SlackWorkbenchService) ResolveCommitChannel(c *cli.Context) {
 	if res, _ := s.Commits.Resolve(c.Args().First()); res != "" {
+		println("Target channel: " + res)
+
+		return
+	}
+
+	println("No target channel found.")
+}
+
+// ResolveTaskChannel attempts to get which channel name should a commit be
+// posted to.
+func (s *SlackWorkbenchService) ResolveTaskChannel(c *cli.Context) {
+	if res, _ := s.Tasks.Resolve(c.Args().First()); res != "" {
 		println("Target channel: " + res)
 
 		return

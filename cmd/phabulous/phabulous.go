@@ -65,47 +65,14 @@ func main() {
 					Action: phabulous.SlackWorkbench.SendTestMessage,
 				},
 				{
-					Name:   "resolveCommitChannel",
+					Name:   "resolve.commit",
 					Usage:  "Test that that a commit can correctly be resolved into a channel",
 					Action: phabulous.SlackWorkbench.ResolveCommitChannel,
 				},
-			},
-		},
-		{
-			Name:        "diffusion",
-			Description: "Perform calls to diffusion conduit endpoints",
-			Subcommands: []cli.Command{
 				{
-					Name:   "querycommits.name",
-					Usage:  "Query commits by name",
-					Action: phabulous.Diffusion.QueryCommitsByName,
-				},
-			},
-		},
-		{
-			Name:        "repository",
-			Description: "Perform calls to repository conduit endpoints",
-			Subcommands: []cli.Command{
-				{
-					Name:   "query.callsign",
-					Usage:  "Query repositories by callsign",
-					Action: phabulous.Diffusion.QueryRepositoriesByCallsign,
-				},
-			},
-		},
-		{
-			Name:        "maniphest",
-			Description: "Perform calls to maniphest conduit endpoints",
-			Subcommands: []cli.Command{
-				{
-					Name:   "query.ids",
-					Usage:  "Query tasks by ids (1, 2, 3, etc)",
-					Action: phabulous.Maniphest.QueryByIDs,
-				},
-				{
-					Name:   "query.phids",
-					Usage:  "Query tasks by their phids",
-					Action: phabulous.Maniphest.QueryByPHIDs,
+					Name:   "resolve.task",
+					Usage:  "Test that that a task can correctly be resolved into a channel",
+					Action: phabulous.SlackWorkbench.ResolveTaskChannel,
 				},
 			},
 		},

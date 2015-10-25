@@ -1,5 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
 
+.DS_Store
+
 ### Node template
 # Logs
 logs
