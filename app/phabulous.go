@@ -15,6 +15,7 @@ type Phabulous struct {
 	Slacker        *slacker.SlackService            `inject:""`
 	Diffusion      *workbench.DiffusionService      `inject:""`
 	SlackWorkbench *workbench.SlackWorkbenchService `inject:""`
+	Maniphest      *workbench.ManiphestService      `inject:""`
 }
 
 // Boot the upper part of the application.

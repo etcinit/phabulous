@@ -2,6 +2,7 @@ package factories
 
 import (
 	"github.com/etcinit/gonduit"
+	"github.com/etcinit/gonduit/core"
 	"github.com/jacobstr/confer"
 )
 
@@ -14,7 +15,7 @@ type GonduitFactory struct {
 func (g *GonduitFactory) Make() (*gonduit.Conn, error) {
 	conduit, err := gonduit.Dial(
 		g.Config.GetString("conduit.api"),
-		&gonduit.ClientOptions{
+		&core.ClientOptions{
 			InsecureSkipVerify: g.Config.GetBool("misc.ignore-ca"),
 		},
 	)
