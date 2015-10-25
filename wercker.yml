@@ -43,7 +43,7 @@ deploy:
         code: |
           go get -u -v github.com/laher/goxc
           go build ./cmd/phabulous
-	        goxc -tasks='xc archive' -bc 'linux windows darwin' -d .
+          goxc -tasks='xc archive' -bc 'linux windows darwin' -d .
     - script:
         name: get version from app
         code: export APP_VERSION=$(./phabulous -v)
