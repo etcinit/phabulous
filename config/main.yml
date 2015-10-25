@@ -10,9 +10,9 @@ conduit:
 channels:
   feed: '#phabricator'
   repositories:
-    CALLSIGN: channel
-    OTHERCALLSIGN: otherchannel
+    CALLSIGN: '#channel'
+    OTHERCALLSIGN: '#otherchannel'
   projects:
-    10: anotherchannel
+    10: '#anotherchannel'
 misc:
   ignore-ca: false
