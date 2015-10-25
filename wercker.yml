@@ -1,0 +1,76 @@
+box: etcinit/golang-goxc
+# Build definition
+build:
+  # The steps that will be executed on build
+  steps:
+    # Sets the go workspace and places you package
+    # at the right place in the workspace tree
+    - setup-go-workspace
+
+    # Gets the dependencies
+    - script:
+        name: go get
+        code: |
+          cd $WERCKER_SOURCE_DIR
+          go version
+          go get -t ./...
+    # Build the project
+    - script:
+        name: go build
+        code: |
+          go build ./...
+    # Test the project
+    - script:
+        name: go test
+        code: |
+          go test ./...
+deploy:
+  steps:
+    # Sets the go workspace and places you package
+    # at the right place in the workspace tree
+    - setup-go-workspace
+
+    # Gets the dependencies
+    - script:
+        name: go get
+        code: |
+          cd $WERCKER_SOURCE_DIR
+          go version
+          go get -t ./...
+    # Build the project
+    - script:
+        name: compile dist package
+        code: |
+          go get -u -v github.com/laher/goxc
+          go build ./cmd/phabulous
+	        goxc -tasks='xc archive' -bc 'linux windows darwin' -d .
+    - script:
+        name: get version from app
+        code: export APP_VERSION=$(./phabulous -v)
+    - github-create-release:
+        token: $GITHUB_TOKEN
+        tag: $APP_VERSION
+    - github-upload-asset:
+        token: $GITHUB_TOKEN
+        file: snapshot/phabulous_linux_386.tar.gz
+        filename: phabulous-linux-386.tar.gz
+    - github-upload-asset:
+        token: $GITHUB_TOKEN
+        file: snapshot/phabulous_linux_amd64.tar.gz
+        filename: phabulous-linux-amd64.tar.gz
+    - github-upload-asset:
+        token: $GITHUB_TOKEN
+        file: snapshot/phabulous_darwin_386.zip
+        filename: phabulous-macosx-386.zip
+    - github-upload-asset:
+        token: $GITHUB_TOKEN
+        file: snapshot/phabulous_darwin_amd64.zip
+        filename: phabulous-macosx-amd64.zip
+    - github-upload-asset:
+        token: $GITHUB_TOKEN
+        file: snapshot/phabulous_windows_386.zip
+        filename: phabulous-windows-386.zip
+    - github-upload-asset:
+        token: $GITHUB_TOKEN
+        file: snapshot/phabulous_windows_amd64.zip
+        filename: phabulous-windows-amd64.zip
