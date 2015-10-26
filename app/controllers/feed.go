@@ -48,14 +48,16 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		storyText += " (<" + res.URI + "|More info>)"
 	}
 
-	f.Slacker.Slack.PostMessage(
-		f.Config.GetString("channels.feed"),
-		storyText,
-		slack.PostMessageParameters{
-			Username: f.Config.GetString("slack.username"),
-			IconURL:  "http://i.imgur.com/7Hzgo9Y.png",
-		},
-	)
+	if f.Config.GetString("channels.feed") != "" {
+		f.Slacker.Slack.PostMessage(
+			f.Config.GetString("channels.feed"),
+			storyText,
+			slack.PostMessageParameters{
+				Username: f.Config.GetString("slack.username"),
+				IconURL:  "http://i.imgur.com/7Hzgo9Y.png",
+			},
+		)
+	}
 
 	switch res.Type {
 	case "CMIT":

@@ -23,7 +23,7 @@ available at the **legacy** branch, but it won't be actively maintained.
 ## Getting started
 
 1. Create a directory for the bot: `mkdir phabulous`.
-2. Download the latest stable release for your OS on the releases page and
+2. Download the latest stable release for your OS from the [releases page](https://github.com/etcinit/phabulous/releases) and
 save it there.
 3. Create a configuration file `config/main.yml` using the one on this
 repository as a template.
@@ -41,15 +41,75 @@ as Phabricator:
 ```json
   //...
   "feed.http-hooks": [
-      "http://localhost:8086"
+      "http://localhost:8086/v1/feed/receive"
   ]
   //...
 ```
 
-## Troubleshooting
+## Help & Troubleshooting
+
+### Events are not showing up
+
+Make sure that the `feed.http-hooks` setting on your Phabricator instance is
+setup correctly, and that the server can communicate with the Phabulous API.
+An easy way to test this is using `curl` from the server hosting Phabricator:
+
+```sh
+curl http://localhost:8086
+```
+
+The command above should return something like:
+
+```json
+{
+  "messages": ["Welcome to the Phabulous API"],
+  "status": "success",
+  "version": "1.0.0"
+}
+```
 
 ### Self-signed certificates
 
 If you are using self-signed certificates for your Phabricator instance, you
 can disable checking at your own risk by setting `misc.ignore-ca` to `true` on
 your configuration file.
+
+### OMG, the feed is flooding everything
+
+The `channels.feed` setting tells Phabulous where to post about every single
+feed event from Phabricator. This might get too noisy if you have a constant
+stream of events. To disable the feed channel, just set it to an empty string:
+
+```yaml
+channels:
+  feed: ''
+```
+
+### Routing events
+
+Phabulous supports routing events concerning Revisions, Tasks and Commits to
+specific channels, such as Project's or Repo's channel:
+
+```yaml
+channels:
+  feed: '#phabricator'
+  repositories:
+    CALLSIGN: '#channel'
+    OTHERCALLSIGN: '#otherchannel'
+  projects:
+    10: '#anotherchannel'
+```
+
+Specifying repository-channel mappings will cause Revision and Commit events
+for that repository to be sent to the provided channel. The same applies for
+project-channels mappings and Task events.
+
+Project IDs can be found in the URL of a project.
+
+## Roadmap
+
+- Improve error handling in general.
+- Add support for various commands, such as looking up objects or creating
+memes using macros.
+- Add support for etcd or some database configuration backend, so the server
+does not need to be restarted in order to update its configuration.
