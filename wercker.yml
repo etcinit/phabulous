@@ -25,7 +25,6 @@ deploy:
     - script:
         name: go get
         code: |
-          cd $WERCKER_SOURCE_DIR
           go version
           go get -d -t ./...
     # Build the project
