@@ -23,7 +23,7 @@ available at the **legacy** branch, but it won't be actively maintained.
 ## Getting started
 
 1. Create a directory for the bot: `mkdir phabulous`.
-2. Download the latest stable release for your OS from the [releases page](https://github.com/etcinit/phabulous/releases) and
+2. Download the latest release for your OS from the [releases page](https://github.com/etcinit/phabulous/releases) and
 save it there.
 3. Create a configuration file `config/main.yml` using the one on this
 repository as a template.
