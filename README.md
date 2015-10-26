@@ -106,6 +106,19 @@ project-channels mappings and Task events.
 
 Project IDs can be found in the URL of a project.
 
+## Compiling from source
+
+```
+go get github.com/etcinit/phabulous
+
+// or, for cross-compiling:
+
+go get github.com/mitchellh/gox
+git clone git@github.com:etcinit/phabulous.git
+cd phabulous
+make
+```
+
 ## Roadmap
 
 - Improve error handling in general.
@@ -113,3 +126,4 @@ Project IDs can be found in the URL of a project.
 memes using macros.
 - Add support for etcd or some database configuration backend, so the server
 does not need to be restarted in order to update its configuration.
+- Windows support?
