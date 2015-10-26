@@ -1,4 +1,4 @@
-box: etcinit/golang-goxc
+box: golang
 # Build definition
 build:
   # The steps that will be executed on build
@@ -41,9 +41,9 @@ deploy:
     - script:
         name: compile dist package
         code: |
-          go get -u -v github.com/laher/goxc
-          go build ./cmd/phabulous
-          goxc -tasks='xc archive' -bc 'linux windows darwin' -d .
+          go get github.com/mitchellh/gox
+          gox --os="linux darwin" \
+          && --output="build/{{.Dir}}_{{.OS}}_{{.Arch}}" ./cmd/phabulous
     - script:
         name: get version from app
         code: export APP_VERSION=$(./phabulous -v)
@@ -52,25 +52,21 @@ deploy:
         tag: $APP_VERSION
     - github-upload-asset:
         token: $GITHUB_TOKEN
-        file: snapshot/phabulous_linux_386.tar.gz
-        filename: phabulous-linux-386.tar.gz
+        file: build/phabulous_linux_arm
+        filename: phabulous-linux-arm
     - github-upload-asset:
         token: $GITHUB_TOKEN
-        file: snapshot/phabulous_linux_amd64.tar.gz
-        filename: phabulous-linux-amd64.tar.gz
+        file: build/phabulous_linux_386
+        filename: phabulous-linux-386
     - github-upload-asset:
         token: $GITHUB_TOKEN
-        file: snapshot/phabulous_darwin_386.zip
-        filename: phabulous-macosx-386.zip
+        file: build/phabulous_linux_amd64
+        filename: phabulous-linux-amd64
     - github-upload-asset:
         token: $GITHUB_TOKEN
-        file: snapshot/phabulous_darwin_amd64.zip
-        filename: phabulous-macosx-amd64.zip
+        file: build/phabulous_darwin_386
+        filename: phabulous-darwin-386
     - github-upload-asset:
         token: $GITHUB_TOKEN
-        file: snapshot/phabulous_windows_386.zip
-        filename: phabulous-windows-386.zip
-    - github-upload-asset:
-        token: $GITHUB_TOKEN
-        file: snapshot/phabulous_windows_amd64.zip
-        filename: phabulous-windows-amd64.zip
+        file: build/phabulous_darwin_amd64
+        filename: phabulous-darwin-amd64
