@@ -12,11 +12,12 @@ import (
 // SlackWorkbenchService provides tools for debugging and testing that the
 // slack integration works.
 type SlackWorkbenchService struct {
-	Config  *confer.Config            `inject:""`
-	Slacker *slacker.SlackService     `inject:""`
-	Factory *factories.GonduitFactory `inject:""`
-	Commits *resolvers.CommitResolver `inject:""`
-	Tasks   *resolvers.TaskResolver   `inject:""`
+	Config       *confer.Config                  `inject:""`
+	Slacker      *slacker.SlackService           `inject:""`
+	Factory      *factories.GonduitFactory       `inject:""`
+	Commits      *resolvers.CommitResolver       `inject:""`
+	Tasks        *resolvers.TaskResolver         `inject:""`
+	Differential *resolvers.DifferentialResolver `inject:""`
 }
 
 // SendTestMessage sends a test message to the feeds channel.
@@ -50,6 +51,18 @@ func (s *SlackWorkbenchService) ResolveCommitChannel(c *cli.Context) {
 // posted to.
 func (s *SlackWorkbenchService) ResolveTaskChannel(c *cli.Context) {
 	if res, _ := s.Tasks.Resolve(c.Args().First()); res != "" {
+		println("Target channel: " + res)
+
+		return
+	}
+
+	println("No target channel found.")
+}
+
+// ResolveRevisionChannel attempts to get which channel name should a revision
+// be posted to.
+func (s *SlackWorkbenchService) ResolveRevisionChannel(c *cli.Context) {
+	if res, _ := s.Differential.Resolve(c.Args().First()); res != "" {
 		println("Target channel: " + res)
 
 		return

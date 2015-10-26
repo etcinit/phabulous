@@ -74,6 +74,11 @@ func main() {
 					Usage:  "Test that that a task can correctly be resolved into a channel",
 					Action: phabulous.SlackWorkbench.ResolveTaskChannel,
 				},
+				{
+					Name:   "resolve.revision",
+					Usage:  "Test that that a revision can correctly be resolved into a channel",
+					Action: phabulous.SlackWorkbench.ResolveRevisionChannel,
+				},
 			},
 		},
 	}

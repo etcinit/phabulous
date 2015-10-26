@@ -11,11 +11,12 @@ import (
 
 // FeedController handles feed webhook routes
 type FeedController struct {
-	Config  *confer.Config            `inject:""`
-	Slacker *slacker.SlackService     `inject:""`
-	Factory *factories.GonduitFactory `inject:""`
-	Commits *resolvers.CommitResolver `inject:""`
-	Tasks   *resolvers.TaskResolver   `inject:""`
+	Config       *confer.Config                  `inject:""`
+	Slacker      *slacker.SlackService           `inject:""`
+	Factory      *factories.GonduitFactory       `inject:""`
+	Commits      *resolvers.CommitResolver       `inject:""`
+	Tasks        *resolvers.TaskResolver         `inject:""`
+	Differential *resolvers.DifferentialResolver `inject:""`
 }
 
 // Register registers the route handlers for this controller
@@ -56,7 +57,8 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		},
 	)
 
-	if res.Type == "CMIT" {
+	switch res.Type {
+	case "CMIT":
 		if channelName, _ := f.Commits.Resolve(res.Name); channelName != "" {
 			f.Slacker.Slack.PostMessage(
 				channelName,
@@ -67,7 +69,8 @@ func (f *FeedController) postReceive(c *gin.Context) {
 				},
 			)
 		}
-	} else if res.Type == "TASK" {
+		break
+	case "TASK":
 		if channelName, _ := f.Tasks.Resolve(res.PHID); channelName != "" {
 			f.Slacker.Slack.PostMessage(
 				channelName,
@@ -78,6 +81,19 @@ func (f *FeedController) postReceive(c *gin.Context) {
 				},
 			)
 		}
+		break
+	case "DREV":
+		if channelName, _ := f.Differential.Resolve(res.PHID); channelName != "" {
+			f.Slacker.Slack.PostMessage(
+				channelName,
+				storyText,
+				slack.PostMessageParameters{
+					Username: f.Config.GetString("slack.username"),
+					IconURL:  "http://i.imgur.com/7Hzgo9Y.png",
+				},
+			)
+		}
+		break
 	}
 
 	c.JSON(200, gin.H{
