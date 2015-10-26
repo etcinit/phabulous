@@ -77,7 +77,7 @@ func (f *FeedController) postReceive(c *gin.Context) {
 				storyText,
 				slack.PostMessageParameters{
 					Username: f.Config.GetString("slack.username"),
-					IconURL:  "http://i.imgur.com/7Hzgo9Y.png",
+					IconURL:  "http://i.imgur.com/jD7rf9x.png",
 				},
 			)
 		}
@@ -89,7 +89,7 @@ func (f *FeedController) postReceive(c *gin.Context) {
 				storyText,
 				slack.PostMessageParameters{
 					Username: f.Config.GetString("slack.username"),
-					IconURL:  "http://i.imgur.com/7Hzgo9Y.png",
+					IconURL:  "http://i.imgur.com/NiPouYj.png",
 				},
 			)
 		}
