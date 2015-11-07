@@ -29,10 +29,14 @@ class App
         // Setup CA config if needed
         this.cahelper.setup();
 
+        let Processor = use('FeedProcessor');
+
         // Begin setting up the app
-        this.canduit.make(function (err, conduit) {
-            // Register Conduit service
+        this.canduit.make((err, conduit) => {
             container.instance('Conduit', conduit);
+
+            // `true` indicates that Processor is shared (aka a singleton)
+            container.bind('FeedProcessor', Processor, true);
 
             let server = container.make('Http/Server');
 

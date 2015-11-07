@@ -1,14 +1,14 @@
 'use strict';
 
 /**
- * Class PhidFetcher
+ * Class Fetcher
  *
- * Gets information about PHIDs
+ * Gets information from Conduit API
  */
-class PhidFetcher
+class Fetcher
 {
     /**
-     * Construct an instance of a PhidFetcher
+     * Construct an instance of a Fetcher
      *
      * @param Conduit
      */
@@ -18,15 +18,16 @@ class PhidFetcher
     }
 
     /**
-     * Go and fetch information about a PHID from Conduit
+     * Go and fetch information from Conduit
      *
      * @param phid
+     * @param endpoint
      * @param callback
      */
-    fetch (phid, callback)
+    fetch (phid, endpoint, callback)
     {
         this.conduit.exec(
-            'phid.query',
+            endpoint,
             {
                 "phids": {
                     "0": phid
@@ -39,12 +40,14 @@ class PhidFetcher
 
                 // This call will return a hash of ids and objects so we need to
                 // get the first key
-                var keys = Object.keys(response);
+                if (!!response) {
+                  var keys = Object.keys(response);
 
-                callback(null, response[keys[0]]);
+                	callback(null, response[keys[0]]);
+                }
             }
         )
     }
 }
 
-module.exports = PhidFetcher;
+module.exports = Fetcher;
