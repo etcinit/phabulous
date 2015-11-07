@@ -13,5 +13,8 @@
   },
   "misc": {
     "ignore-ca": false
+  },
+  "users": {
+    "phabricator-username": "@slack-username"
   }
 }
