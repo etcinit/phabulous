@@ -117,7 +117,7 @@ class FeedProcessor
     if (!body) {
       throw new Error('diffHandler() received no request body.');
     }
-    else if (!data || !data.reviewers || !data.ccs) {
+    else if (!data || !data.authorPHID || !data.reviewers || !data.ccs) {
       // Swap to PHID query
       let phid = body.storyData.objectPHID;
       let endpoint = 'phid.query';
@@ -126,79 +126,102 @@ class FeedProcessor
       );
     }
     else {
+      let authorPHID = data.authorPHID;
       let reviewers = data.reviewers;
       let subscribers = data.ccs;
       let message = body.storyText;
-      let first = true;
+      let query = 'user.query';
       
       // If we have a URI, add it to the message
       if (data.uri) {
         message += " (<" + data.uri + "|More info>)";
       }
 
-      // Iterate through sets of PHIDs and make user queries
-      let serialFetch = (i, phidSet, nextPhidSet) => {
-
-        // If end of current set has been reached...
-        if (i === phidSet.length) {
-          message += ']';
-          
-          // If next set exists, swap it in
-          if (nextPhidSet && nextPhidSet.length) {
-            message += ' Subscribers: [';
-            first = true;
-            serialFetch(0, nextPhidSet);
-          }
-
-          // Send final message to Slack!
-          else {
-            console.log(message); // Debug logging
-            this.poster.send(this.username, message);
-          }
+      let authorFetch = () => {
+        if (!authorPHID) {
+          reviewerFetch(0);
         }
-
-        // Make query
         else {
-          let phid = phidSet[i];
-          let query = 'user.query';
+          let phid = authorPHID
           this.fetcher.fetch(phid, query,
             this.genericHandlerFactory(phid, query, true, null, (data) => {
               if (!data || !data.userName) {
                 console.error('Incomplete data for PHID ' + phid + ': ' + data);
-                throw new Error('Conduit `' + query + '` returned incomplete data');
+                throw new Error('Phabricator Conduit `' + query + '` returned incomplete data');
               }
               else {
-                if (first) {
-                  first = false;
-                }
-                else {
-                  message += ', ';
-                }
+                message += ' Author: ';
                 message += '<' + this.directory[data.userName] + '>';
+                reviewerFetch(0);
               }
-              serialFetch(i+1, phidSet, nextPhidSet);
             })
           );
         }
       }
 
-      // Initialize call to serialFetch
-      if (reviewers.length && subscribers.length) {
-        message += ' Reviewers: [';
-        serialFetch(0, reviewers, subscribers);
+      let reviewerFetch = (i) => {
+        if (i === reviewers.length) {
+          if (reviewers.length !== 0) {
+            message += ']';
+          }
+          subscriberFetch(0);
+        }
+        else {
+          let phid = reviewers[i];
+          this.fetcher.fetch(phid, query,
+            this.genericHandlerFactory(phid, query, true, null, (data) => {
+              if (!data || !data.userName) {
+                console.error('Incomplete data for PHID ' + phid + ': ' + data);
+                throw new Error('Phabricator Conduit `' + query + '` returned incomplete data');
+              }
+              else {
+                if (i === 0) {
+                  message += ' Reviewers: [';
+                }
+                message += '<' + this.directory[data.userName] + '>';
+                if (i < reviewers.length - 1) {
+                  message += ', ';
+                }
+                reviewerFetch(i+1);
+              }
+            })
+          );
+        }
       }
-      else if (reviewers.length) {
-        message += ' Reviewers: [';
-        serialFetch(0, reviewers);
+
+      let subscriberFetch = (i) => {
+        if (i == subscribers.length) {
+          if (subscribers.length !== 0) {
+            message += ']';
+          }
+          console.log(message);  // Debug logging
+          this.poster.send(this.username, message);
+        }
+        else {
+          let phid = subscribers[i];
+          this.fetcher.fetch(phid, query,
+            this.genericHandlerFactory(phid, query, true, null, (data) => {
+              if (!data || !data.userName) {
+                console.error('Incomplete data for PHID ' + phid + ': ' + data);
+                throw new Error('Phabricator Conduit `' + query + '` returned incomplete data');
+              }
+              else {
+                if (i === 0) {
+                  message += ' Subscribers: [';
+                }
+                message += '<' + this.directory[data.userName] + '>';
+                if (i < subscribers.length - 1) {
+                  message += ', ';
+                }
+                subscriberFetch(i+1);
+              }
+            })
+          );
+        }
       }
-      else if (subscribers.length) {
-        message += ' Subscribers: [';
-        serialFetch(0, subscribers);
-      }
-      else {
-        // No work to do, send message as-is
-        this.poster.send(this.username, message);
-      }
+
+      authorFetch();
+
     }
   }
 
