@@ -48,6 +48,24 @@ as Phabricator:
 
 ## Help & Troubleshooting
 
+### Environment
+
+It is possible to override any variable in the configuration file through
+environment variables:
+
+```
+export SLACK_TOKEN=mytoken
+```
+
+is the same as setting:
+
+```yaml
+slack:
+  token: mytoken
+```
+
+See https://github.com/jacobstr/confer for more information.
+
 ### Events are not showing up
 
 Make sure that the `feed.http-hooks` setting on your Phabricator instance is
