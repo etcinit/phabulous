@@ -83,3 +83,7 @@ crashlytics.properties
 crashlytics-build.properties
 
 main.production.yml
+
+_builds
+_projects
+_steps
