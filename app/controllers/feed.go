@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/Sirupsen/logrus"
 	"github.com/etcinit/gonduit/constants"
 	"github.com/etcinit/phabulous/app/bot"
 	"github.com/etcinit/phabulous/app/factories"
@@ -18,6 +19,7 @@ type FeedController struct {
 	Commits      *resolvers.CommitResolver       `inject:""`
 	Tasks        *resolvers.TaskResolver         `inject:""`
 	Differential *resolvers.DifferentialResolver `inject:""`
+	Logger       *logrus.Logger                  `inject:""`
 }
 
 // Register registers the route handlers for this controller
@@ -58,17 +60,32 @@ func (f *FeedController) postReceive(c *gin.Context) {
 
 	switch phidType {
 	case constants.PhidTypeCommit:
-		if channelName, _ := f.Commits.Resolve(res.Name); channelName != "" {
+		channelName, err := f.Commits.Resolve(res.Name)
+		if err != nil {
+			f.Logger.Error(err)
+		}
+
+		if channelName != "" {
 			f.Slacker.SimplePost(channelName, storyText, icon)
 		}
 		break
 	case constants.PhidTypeTask:
-		if channelName, _ := f.Tasks.Resolve(res.PHID); channelName != "" {
+		channelName, err := f.Tasks.Resolve(res.PHID)
+		if err != nil {
+			f.Logger.Error(err)
+		}
+
+		if channelName != "" {
 			f.Slacker.SimplePost(channelName, storyText, icon)
 		}
 		break
 	case constants.PhidTypeDifferentialRevision:
-		if channelName, _ := f.Differential.Resolve(res.PHID); channelName != "" {
+		channelName, err := f.Differential.Resolve(res.PHID)
+		if err != nil {
+			f.Logger.Error(err)
+		}
+
+		if channelName != "" {
 			f.Slacker.SimplePost(channelName, storyText, icon)
 		}
 		break
