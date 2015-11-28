@@ -1,19 +1,34 @@
 server:
   port: 8085
   debug: false
+
+  # Serious-mode makes some messages more formal and business-friendly.
   serious: false
 slack:
   token: YOUR_TOKEN_HERE
   username: phabulous
 conduit:
-  user: etcinit
-  api: ''
-  cert: ''
+  api: https://phabricator.replace.me
+
+  # For token-based auth, use the following key:
+  token: YOUR_TOKEN_HERE
+
+  # For certificate-based auth, use the following keys:
+  #user: etcinit
+  #cert: ''
 channels:
+  # The feed channel is where Phabulous will post every feed event to this
+  # channel. Leave it blank to disable this feature.
   feed: '#phabricator'
+
+  # You can map repositories to a channel. This will send feed events regarding
+  # commits and revisions to the specified channel.
   repositories:
     CALLSIGN: '#channel'
     OTHERCALLSIGN: '#otherchannel'
+
+  # You can map projects to a channel. This will send feed events regarding
+  # tasks to the specified channel.
   projects:
     10: '#anotherchannel'
 misc:
