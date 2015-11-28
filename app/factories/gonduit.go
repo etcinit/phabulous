@@ -27,7 +27,7 @@ func (g *GonduitFactory) Make() (*gonduit.Conn, error) {
 
 	if g.Config.IsSet("conduit.token") {
 		options.APIToken = g.Config.GetString("conduit.token")
-	} else if g.Config.IsSet("conduit.user") {
+	} else if g.Config.IsSet("conduit.cert") && g.Config.IsSet("conduit.user") {
 		options.Cert = g.Config.GetString("conduit.cert")
 		options.CertUser = g.Config.GetString("conduit.user")
 	} else {

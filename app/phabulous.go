@@ -1,7 +1,8 @@
 package app
 
 import (
-	"github.com/etcinit/phabulous/app/slacker"
+	"github.com/Sirupsen/logrus"
+	"github.com/etcinit/phabulous/app/bot"
 	"github.com/etcinit/phabulous/app/workbench"
 	"github.com/jacobstr/confer"
 	"github.com/nlopes/slack"
@@ -12,13 +13,18 @@ type Phabulous struct {
 	Config         *confer.Config                   `inject:""`
 	Engine         *EngineService                   `inject:""`
 	Serve          *ServeService                    `inject:""`
-	Slacker        *slacker.SlackService            `inject:""`
+	Slacker        *bot.SlackService                `inject:""`
 	SlackWorkbench *workbench.SlackWorkbenchService `inject:""`
+	Logger         *logrus.Logger                   `inject:""`
 }
 
 // Boot the upper part of the application.
 func (p *Phabulous) Boot() {
+	p.Logger.Debugln("Booting upper layer")
+
 	p.Slacker.Slack = slack.New(
 		p.Config.GetString("slack.token"),
 	)
+
+	p.Slacker.BootRTM()
 }

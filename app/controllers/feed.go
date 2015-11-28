@@ -1,18 +1,19 @@
 package controllers
 
 import (
+	"github.com/etcinit/gonduit/constants"
+	"github.com/etcinit/phabulous/app/bot"
 	"github.com/etcinit/phabulous/app/factories"
+	"github.com/etcinit/phabulous/app/messages"
 	"github.com/etcinit/phabulous/app/resolvers"
-	"github.com/etcinit/phabulous/app/slacker"
 	"github.com/gin-gonic/gin"
 	"github.com/jacobstr/confer"
-	"github.com/nlopes/slack"
 )
 
 // FeedController handles feed webhook routes
 type FeedController struct {
 	Config       *confer.Config                  `inject:""`
-	Slacker      *slacker.SlackService           `inject:""`
+	Slacker      *bot.SlackService               `inject:""`
 	Factory      *factories.GonduitFactory       `inject:""`
 	Commits      *resolvers.CommitResolver       `inject:""`
 	Tasks        *resolvers.TaskResolver         `inject:""`
@@ -36,7 +37,9 @@ func (f *FeedController) postReceive(c *gin.Context) {
 
 	c.Request.ParseForm()
 
-	res, err := conduit.PHIDQuerySingle(string(c.Request.PostForm.Get("storyData[objectPHID]")))
+	res, err := conduit.PHIDQuerySingle(
+		string(c.Request.PostForm.Get("storyData[objectPHID]")),
+	)
 
 	if err != nil {
 		panic(err)
@@ -48,52 +51,25 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		storyText += " (<" + res.URI + "|More info>)"
 	}
 
-	if f.Config.GetString("channels.feed") != "" {
-		f.Slacker.Slack.PostMessage(
-			f.Config.GetString("channels.feed"),
-			storyText,
-			slack.PostMessageParameters{
-				Username: f.Config.GetString("slack.username"),
-				IconURL:  "http://i.imgur.com/7Hzgo9Y.png",
-			},
-		)
-	}
+	phidType := constants.PhidType(res.Type)
+	icon := messages.PhidTypeToIcon(phidType)
 
-	switch res.Type {
-	case "CMIT":
+	f.Slacker.FeedPost(storyText)
+
+	switch phidType {
+	case constants.PhidTypeCommit:
 		if channelName, _ := f.Commits.Resolve(res.Name); channelName != "" {
-			f.Slacker.Slack.PostMessage(
-				channelName,
-				storyText,
-				slack.PostMessageParameters{
-					Username: f.Config.GetString("slack.username"),
-					IconURL:  "http://i.imgur.com/v8ReRKx.png",
-				},
-			)
+			f.Slacker.SimplePost(channelName, storyText, icon)
 		}
 		break
-	case "TASK":
+	case constants.PhidTypeTask:
 		if channelName, _ := f.Tasks.Resolve(res.PHID); channelName != "" {
-			f.Slacker.Slack.PostMessage(
-				channelName,
-				storyText,
-				slack.PostMessageParameters{
-					Username: f.Config.GetString("slack.username"),
-					IconURL:  "http://i.imgur.com/jD7rf9x.png",
-				},
-			)
+			f.Slacker.SimplePost(channelName, storyText, icon)
 		}
 		break
-	case "DREV":
+	case constants.PhidTypeDifferentialRevision:
 		if channelName, _ := f.Differential.Resolve(res.PHID); channelName != "" {
-			f.Slacker.Slack.PostMessage(
-				channelName,
-				storyText,
-				slack.PostMessageParameters{
-					Username: f.Config.GetString("slack.username"),
-					IconURL:  "http://i.imgur.com/NiPouYj.png",
-				},
-			)
+			f.Slacker.SimplePost(channelName, storyText, icon)
 		}
 		break
 	}

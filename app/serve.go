@@ -1,9 +1,9 @@
 package app
 
 import (
-	"fmt"
 	"strconv"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
 	"github.com/jacobstr/confer"
 )
@@ -12,11 +12,12 @@ import (
 type ServeService struct {
 	Engine *EngineService `inject:""`
 	Config *confer.Config `inject:""`
+	Logger *logrus.Logger `inject:""`
 }
 
 // Run starts up the HTTP server
 func (s *ServeService) Run(c *cli.Context) {
-	fmt.Println("Starting up the server... (a.k.a. coffee time)")
+	s.Logger.Infoln("Starting up the server... (a.k.a. coffee time)")
 
 	engine := s.Engine.New()
 
@@ -25,5 +26,5 @@ func (s *ServeService) Run(c *cli.Context) {
 
 	engine.Run(port)
 
-	fmt.Println("✔︎ Done!")
+	s.Logger.Infoln("✔︎ Done!")
 }

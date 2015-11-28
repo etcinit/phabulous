@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
+	"time"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
 	"github.com/etcinit/phabulous/app"
 	"github.com/facebookgo/inject"
@@ -11,11 +14,23 @@ import (
 )
 
 func main() {
+	// Seed rand.
+	rand.Seed(time.Now().UTC().UnixNano())
+
 	// Create the configuration
 	// In this case, we will be using the environment and some safe defaults
 	config := confer.NewConfig()
 	config.ReadPaths("config/main.yml", "config/main.production.yml")
 	config.AutomaticEnv()
+
+	// Create the logger.
+	logger := logrus.New()
+
+	if config.GetBool("server.debug") {
+		logger.Level = logrus.DebugLevel
+	} else {
+		logger.Level = logrus.WarnLevel
+	}
 
 	// Next, we setup the dependency graph
 	// In this example, the graph won't have many nodes, but on more complex
@@ -25,6 +40,7 @@ func main() {
 	g.Provide(
 		&inject.Object{Value: config},
 		&inject.Object{Value: &phabulous},
+		&inject.Object{Value: logger},
 	)
 	if err := g.Populate(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

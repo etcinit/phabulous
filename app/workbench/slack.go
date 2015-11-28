@@ -2,9 +2,9 @@ package workbench
 
 import (
 	"github.com/codegangsta/cli"
+	"github.com/etcinit/phabulous/app/bot"
 	"github.com/etcinit/phabulous/app/factories"
 	"github.com/etcinit/phabulous/app/resolvers"
-	"github.com/etcinit/phabulous/app/slacker"
 	"github.com/jacobstr/confer"
 	"github.com/nlopes/slack"
 )
@@ -13,7 +13,7 @@ import (
 // slack integration works.
 type SlackWorkbenchService struct {
 	Config       *confer.Config                  `inject:""`
-	Slacker      *slacker.SlackService           `inject:""`
+	Slacker      *bot.SlackService               `inject:""`
 	Factory      *factories.GonduitFactory       `inject:""`
 	Commits      *resolvers.CommitResolver       `inject:""`
 	Tasks        *resolvers.TaskResolver         `inject:""`
