@@ -25,7 +25,8 @@ func (b *Bot) HandleLookup(ev *slack.MessageEvent, matches []string) {
 
 	b.Slacker.SimplePost(
 		ev.Channel,
-		fmt.Sprintf("%s (%s): %s", res.FullName, res.Status, res.URI),
+		fmt.Sprintf("*%s* (%s): %s", res.FullName, res.Status, res.URI),
 		messages.IconTasks,
+		true,
 	)
 }

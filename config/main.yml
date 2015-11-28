@@ -1,6 +1,7 @@
 server:
   port: 8085
   debug: false
+  serious: false
 slack:
   token: YOUR_TOKEN_HERE
   username: phabulous

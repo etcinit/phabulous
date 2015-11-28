@@ -11,6 +11,7 @@ func (b *Bot) HandleUsage(ev *slack.MessageEvent, matches []string) {
 		ev.Channel,
 		"Hi. For usage information, type `help`.",
 		messages.IconTasks,
+		true,
 	)
 }
 
@@ -19,9 +20,11 @@ func (b *Bot) HandleHelp(ev *slack.MessageEvent, matches []string) {
 	b.Slacker.SimplePost(
 		ev.Channel,
 		`Available commands:
-    *lookup Txxx*: Looks up a task by its number.
-    *lookup Dxxx*: Looks up a revision by its number.
-    *help*: Shows this help.`,
+		*summon Dxxx* (channel): Asks reviewers of a revision to review it.
+    *lookup Txxx* (channel, DM): Looks up a task by its number.
+    *lookup Dxxx* (channel, DM): Looks up a revision by its number.
+    *help* (channel, DM): Shows this help.`,
 		messages.IconTasks,
+		true,
 	)
 }

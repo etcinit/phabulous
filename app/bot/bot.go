@@ -58,16 +58,32 @@ func (b *Bot) loadHandlers() {
 
 	b.imHandlers[regexp.MustCompile("^lookup ([T|D][0-9]{1,16})$")] =
 		b.HandleLookup
+	b.imHandlers[regexp.MustCompile("^([T|D][0-9]{1,16})$")] =
+		b.HandleLookup
 	b.imHandlers[regexp.MustCompile("^help$")] = b.HandleHelp
 
+	b.handlers[b.mentionRegex("summon D([0-9]{1,16})")] =
+		b.HandleSummon
 	b.handlers[b.mentionRegex("help")] = b.HandleHelp
 	b.handlers[b.mentionRegex("([T|D][0-9]{1,16})")] = b.HandleLookup
 	b.handlers[b.mentionRegex("lookup ([T|D][0-9]{1,16})")] = b.HandleLookup
+	b.handlers[regexp.MustCompile("^([T|D][0-9]{1,16})$")] = b.HandleLookup
 }
 
 // Excuse comes up with an excuse of why something failed.
 func (b *Bot) Excuse(ev *slack.MessageEvent, err error) {
 	b.Slacker.Logger.Error(err)
+
+	if b.Slacker.Config.GetBool("server.serious") {
+		b.Slacker.SimplePost(
+			ev.Channel,
+			"An error ocurred and I was unable to fulfill your request.",
+			messages.IconDefault,
+			true,
+		)
+
+		return
+	}
 
 	excuses := []string{
 		"There is some interference right now and I can't fulfill your request.",
@@ -85,7 +101,8 @@ func (b *Bot) Excuse(ev *slack.MessageEvent, err error) {
 	b.Slacker.SimplePost(
 		ev.Channel,
 		excuses[rand.Intn(len(excuses))],
-		messages.IconTasks,
+		messages.IconDefault,
+		true,
 	)
 }
 

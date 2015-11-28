@@ -31,6 +31,7 @@ func (s *SlackService) SimplePost(
 	channelName string,
 	storyText string,
 	icon messages.Icon,
+	asUser bool,
 ) {
 	user := s.Config.GetString("slack.username")
 
@@ -44,7 +45,7 @@ func (s *SlackService) SimplePost(
 		slack.PostMessageParameters{
 			Username: user,
 			IconURL:  string(icon),
-			AsUser:   true,
+			AsUser:   asUser,
 		},
 	)
 }
@@ -55,7 +56,7 @@ func (s *SlackService) FeedPost(storyText string) error {
 		return ErrMissingFeedChannel
 	}
 
-	s.SimplePost(s.GetFeedChannel(), storyText, messages.IconDefault)
+	s.SimplePost(s.GetFeedChannel(), storyText, messages.IconDefault, false)
 	return nil
 }
 

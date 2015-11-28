@@ -66,7 +66,7 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		}
 
 		if channelName != "" {
-			f.Slacker.SimplePost(channelName, storyText, icon)
+			f.Slacker.SimplePost(channelName, storyText, icon, false)
 		}
 		break
 	case constants.PhidTypeTask:
@@ -76,7 +76,7 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		}
 
 		if channelName != "" {
-			f.Slacker.SimplePost(channelName, storyText, icon)
+			f.Slacker.SimplePost(channelName, storyText, icon, false)
 		}
 		break
 	case constants.PhidTypeDifferentialRevision:
@@ -86,7 +86,7 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		}
 
 		if channelName != "" {
-			f.Slacker.SimplePost(channelName, storyText, icon)
+			f.Slacker.SimplePost(channelName, storyText, icon, false)
 		}
 		break
 	}
