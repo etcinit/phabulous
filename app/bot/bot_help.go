@@ -20,7 +20,7 @@ func (b *Bot) HandleHelp(ev *slack.MessageEvent, matches []string) {
 	b.Slacker.SimplePost(
 		ev.Channel,
 		`Available commands:
-		*summon Dxxx* (channel): Asks reviewers of a revision to review it.
+    *summon Dxxx* (channel): Asks reviewers of a revision to review it.
     *lookup Txxx* (channel, DM): Looks up a task by its number.
     *lookup Dxxx* (channel, DM): Looks up a revision by its number.
     *help* (channel, DM): Shows this help.`,
