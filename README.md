@@ -8,6 +8,8 @@ Phabulous is a Slack bot for Phabricator.
 with a rewrite from scratch in Go. The code for the Javascript version is
 available at the **legacy** branch, but it won't be actively maintained.
 
+[![wercker status](https://app.wercker.com/status/f135144cca86098cea87c00a36dfc564/s/master "wercker status")](https://app.wercker.com/project/bykey/f135144cca86098cea87c00a36dfc564)
+
 ## Features
 
 - Post URLs to revisions and tasks right from Slack.
