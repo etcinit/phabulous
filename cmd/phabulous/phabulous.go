@@ -26,12 +26,6 @@ func main() {
 	// Create the logger.
 	logger := logrus.New()
 
-	if config.GetBool("server.debug") {
-		logger.Level = logrus.DebugLevel
-	} else {
-		logger.Level = logrus.WarnLevel
-	}
-
 	// Next, we setup the dependency graph
 	// In this example, the graph won't have many nodes, but on more complex
 	// applications it becomes more useful.
@@ -46,9 +40,6 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-
-	// Boot the upper layers of the app.
-	phabulous.Boot()
 
 	// Setup the command line application
 	app := cli.NewApp()
@@ -65,37 +56,19 @@ func main() {
 		fmt.Println("Usage: phabulous [global options] command [command options] [arguments...]")
 	}
 
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "config",
+			Usage: "Provide an alternative configuration file",
+		},
+	}
+
 	app.Commands = []cli.Command{
 		{
 			Name:    "serve",
 			Aliases: []string{"s", "server", "listen"},
 			Usage:   "Start the API server",
 			Action:  phabulous.Serve.Run,
-		},
-		{
-			Name: "slack",
-			Subcommands: []cli.Command{
-				{
-					Name:   "test",
-					Usage:  "Test that the slackbot works",
-					Action: phabulous.SlackWorkbench.SendTestMessage,
-				},
-				{
-					Name:   "resolve.commit",
-					Usage:  "Test that that a commit can correctly be resolved into a channel",
-					Action: phabulous.SlackWorkbench.ResolveCommitChannel,
-				},
-				{
-					Name:   "resolve.task",
-					Usage:  "Test that that a task can correctly be resolved into a channel",
-					Action: phabulous.SlackWorkbench.ResolveTaskChannel,
-				},
-				{
-					Name:   "resolve.revision",
-					Usage:  "Test that that a revision can correctly be resolved into a channel",
-					Action: phabulous.SlackWorkbench.ResolveRevisionChannel,
-				},
-			},
 		},
 	}
 
