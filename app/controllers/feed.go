@@ -68,6 +68,13 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		if channelName != "" {
 			f.Slacker.SimplePost(channelName, storyText, icon, false)
 		}
+
+		// Support "all" channel.
+		channelMap := f.Config.GetStringMapString("channels.repositories")
+
+		if channelName, ok := channelMap["all"]; ok == true {
+			f.Slacker.SimplePost(channelName, storyText, icon, false)
+		}
 		break
 	case constants.PhidTypeTask:
 		channelName, err := f.Tasks.Resolve(res.PHID)
@@ -86,6 +93,13 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		}
 
 		if channelName != "" {
+			f.Slacker.SimplePost(channelName, storyText, icon, false)
+		}
+
+		// Support "all" channel.
+		channelMap := f.Config.GetStringMapString("channels.repositories")
+
+		if channelName, ok := channelMap["all"]; ok == true {
 			f.Slacker.SimplePost(channelName, storyText, icon, false)
 		}
 		break
