@@ -39,6 +39,8 @@ func (f *FeedController) postReceive(c *gin.Context) {
 
 	c.Request.ParseForm()
 
+	f.Logger.Debug(c.Request.PostForm.Encode())
+
 	res, err := conduit.PHIDQuerySingle(
 		string(c.Request.PostForm.Get("storyData[objectPHID]")),
 	)
