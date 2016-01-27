@@ -29,10 +29,14 @@ func (s *ServeService) Run(c *cli.Context) {
 
 	go s.Slacker.BootRTM()
 
+	host := "localhost"
+        if s.Config.IsSet("server.host") {
+		host = s.Config.GetString("server.host")
+	}
 	// Figure out which port to use
-	port := ":" + strconv.Itoa(s.Config.GetInt("server.port"))
+	host = host + ":" + strconv.Itoa(s.Config.GetInt("server.port"))
 
-	engine.Run(port)
+	engine.Run(host)
 
 	s.Logger.Infoln("✔︎ Done!")
 }
