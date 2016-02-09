@@ -34,19 +34,20 @@ func (f *FeedController) postReceive(c *gin.Context) {
 	conduit, err := f.Factory.Make()
 
 	if err != nil {
-		panic(err)
+		f.Logger.Error("ERROR making factory: ", err)
+		return
 	}
 
 	c.Request.ParseForm()
 
 	f.Logger.Debug(c.Request.PostForm.Encode())
 
-	res, err := conduit.PHIDQuerySingle(
-		string(c.Request.PostForm.Get("storyData[objectPHID]")),
-	)
+	inString := string(c.Request.PostForm.Get("storyData[objectPHID]"))
+	res, err := conduit.PHIDQuerySingle(inString)
 
 	if err != nil {
-		panic(err)
+		f.Logger.Error("ERROR with input ", inString, ": ", err)
+		return
 	}
 
 	storyText := c.Request.PostForm.Get("storyText")
