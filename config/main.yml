@@ -1,5 +1,19 @@
 server:
+  # Which hostname to listen for incoming connections.
+  #
+  # Examples:
+  #
+  # To listen on local connections over IPv6 only:
+  # - '[::1]'
+  #
+  # To listen on local connections over IPv4 only:
+  # - '127.0.0.1'
+  #
+  # To listen to the IP addresses a domain resolves to:
+  # - some.domain.net
+  hostname: ''
   port: 8085
+
   debug: false
 
   # Serious-mode makes some messages more formal and business-friendly.
