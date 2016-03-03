@@ -62,6 +62,9 @@ func (b *Bot) loadHandlers() {
 		b.HandleLookup
 	b.imHandlers[regexp.MustCompile("^help$")] = b.HandleHelp
 
+	b.imHandlers[regexp.MustCompile("dev:post:feed:test")] =
+		b.HandleTestFeedMessage
+
 	b.handlers[b.mentionRegex("summon D([0-9]{1,16})")] =
 		b.HandleSummon
 	b.handlers[b.mentionRegex("help")] = b.HandleHelp

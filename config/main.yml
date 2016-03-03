@@ -7,6 +7,17 @@ server:
 slack:
   token: YOUR_TOKEN_HERE
   username: phabulous
+
+  # If you would like the bot messages to be consistent, you can make it use
+  # the same account for posting both feed messages and real time commands.
+  #
+  # This does have the side effect that the bot will have to be manually
+  # invited to every channel you would like it to participate in.
+  #
+  # When set to false, the bot will post like any other integration (like
+  # webhooks). This allows it to post on almost any channel without having to
+  # be invited.
+  as-user: true
 conduit:
   api: https://phabricator.replace.me
 

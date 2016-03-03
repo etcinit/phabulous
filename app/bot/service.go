@@ -56,7 +56,12 @@ func (s *SlackService) FeedPost(storyText string) error {
 		return ErrMissingFeedChannel
 	}
 
-	s.SimplePost(s.GetFeedChannel(), storyText, messages.IconDefault, false)
+	s.SimplePost(
+		s.GetFeedChannel(),
+		storyText,
+		messages.IconDefault,
+		s.Config.GetBool("slack.as-user"),
+	)
 	return nil
 }
 
