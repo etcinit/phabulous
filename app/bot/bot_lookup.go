@@ -23,6 +23,16 @@ func (b *Bot) HandleLookup(ev *slack.MessageEvent, matches []string) {
 		return
 	}
 
+	if res == nil {
+		b.Slacker.SimplePost(
+			ev.Channel,
+			fmt.Sprintf("I couldn't find %s", matches[1]),
+			messages.IconDefault,
+			true,
+		)
+		return
+	}
+
 	b.Slacker.SimplePost(
 		ev.Channel,
 		fmt.Sprintf("*%s* (%s): %s", res.FullName, res.Status, res.URI),

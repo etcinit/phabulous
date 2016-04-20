@@ -93,7 +93,7 @@ func (b *Bot) Excuse(ev *slack.MessageEvent, err error) {
 		"Oh noes. I messed up.",
 		"Whoops. Something went wrong.",
 		"1000s lines of code and I still cant get some things right.",
-		"Error 500: Internal Server Explosion.",
+		"[explodes]",
 		"Error: WHY U NO WORK?!",
 		"OMG! It failed.",
 		"such failure. such request.",
