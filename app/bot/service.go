@@ -39,6 +39,10 @@ func (s *SlackService) SimplePost(
 		user = s.Bot.slackInfo.User.Name
 	}
 
+	if s.Config.GetBool("slack.as-user") == true {
+		asUser = true
+	}
+
 	s.Slack.PostMessage(
 		channelName,
 		storyText,
@@ -50,6 +54,37 @@ func (s *SlackService) SimplePost(
 	)
 }
 
+func (s *SlackService) SimpleImagePost(
+	channelName string,
+	storyText string,
+	imageUrl string,
+	icon messages.Icon,
+	asUser bool,
+) {
+	user := s.Config.GetString("slack.username")
+
+	if s.Bot != nil {
+		user = s.Bot.slackInfo.User.Name
+	}
+
+	if s.Config.GetBool("slack.as-user") == true {
+		asUser = true
+	}
+
+	s.Slack.PostMessage(
+		channelName,
+		storyText,
+		slack.PostMessageParameters{
+			Username: user,
+			IconURL:  string(icon),
+			AsUser:   asUser,
+			Attachments: []slack.Attachment{
+				slack.Attachment{ImageURL: imageUrl},
+			},
+		},
+	)
+}
+
 // FeedPost posts a message to Slack on the default bot channel.
 func (s *SlackService) FeedPost(storyText string) error {
 	if s.GetFeedChannel() == "" {
@@ -57,6 +92,7 @@ func (s *SlackService) FeedPost(storyText string) error {
 	}
 
 	s.SimplePost(s.GetFeedChannel(), storyText, messages.IconDefault, false)
+
 	return nil
 }
 

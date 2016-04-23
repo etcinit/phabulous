@@ -42,6 +42,12 @@ func (c *DifferentialResolver) Resolve(phid string) (string, error) {
 		return "", err
 	}
 
+	// If the response did not include any repositories, we give up on trying
+	// to match the repository.
+	if len(*repos) < 1 {
+		return "", nil
+	}
+
 	channelMap := c.Config.GetStringMapString("channels.repositories")
 
 	if channelName, ok := channelMap[(*repos)[0].Callsign]; ok == true {

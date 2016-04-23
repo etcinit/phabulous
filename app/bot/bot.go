@@ -62,12 +62,18 @@ func (b *Bot) loadHandlers() {
 		b.HandleLookup
 	b.imHandlers[regexp.MustCompile("^help$")] = b.HandleHelp
 
+	b.imHandlers[regexp.MustCompile("dev:post:feed:test")] =
+		b.HandleTestFeedMessage
+
 	b.handlers[b.mentionRegex("summon D([0-9]{1,16})")] =
 		b.HandleSummon
 	b.handlers[b.mentionRegex("help")] = b.HandleHelp
 	b.handlers[b.mentionRegex("([T|D][0-9]{1,16})")] = b.HandleLookup
 	b.handlers[b.mentionRegex("lookup ([T|D][0-9]{1,16})")] = b.HandleLookup
 	b.handlers[regexp.MustCompile("^([T|D][0-9]{1,16})$")] = b.HandleLookup
+	b.handlers[regexp.MustCompile(
+		"meme ([^ ]{1,128}) \"(.{1,128})\" \"(.{1,128})\"$",
+	)] = b.HandleCreateMeme
 }
 
 // Excuse comes up with an excuse of why something failed.
@@ -90,7 +96,7 @@ func (b *Bot) Excuse(ev *slack.MessageEvent, err error) {
 		"Oh noes. I messed up.",
 		"Whoops. Something went wrong.",
 		"1000s lines of code and I still cant get some things right.",
-		"Error 500: Internal Server Explosion.",
+		"[explodes]",
 		"Error: WHY U NO WORK?!",
 		"OMG! It failed.",
 		"such failure. such request.",
