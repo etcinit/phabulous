@@ -23,6 +23,7 @@ func (b *Bot) HandleHelp(ev *slack.MessageEvent, matches []string) {
     *summon Dxxx* (channel): Asks reviewers of a revision to review it.
     *lookup Txxx* (channel, DM): Looks up a task by its number.
     *lookup Dxxx* (channel, DM): Looks up a revision by its number.
+	*meme <macro> "upper" "lower"* (channel): Generates a meme using the macro.
     *help* (channel, DM): Shows this help.`,
 		messages.IconTasks,
 		true,

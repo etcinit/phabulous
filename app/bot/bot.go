@@ -71,6 +71,9 @@ func (b *Bot) loadHandlers() {
 	b.handlers[b.mentionRegex("([T|D][0-9]{1,16})")] = b.HandleLookup
 	b.handlers[b.mentionRegex("lookup ([T|D][0-9]{1,16})")] = b.HandleLookup
 	b.handlers[regexp.MustCompile("^([T|D][0-9]{1,16})$")] = b.HandleLookup
+	b.handlers[regexp.MustCompile(
+		"meme ([^ ]{1,128}) \"(.{1,128})\" \"(.{1,128})\"$",
+	)] = b.HandleCreateMeme
 }
 
 // Excuse comes up with an excuse of why something failed.
