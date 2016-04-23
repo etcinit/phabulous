@@ -39,6 +39,10 @@ func (s *SlackService) SimplePost(
 		user = s.Bot.slackInfo.User.Name
 	}
 
+	if s.Config.GetBool("slack.as-user") == true {
+		asUser = true
+	}
+
 	s.Slack.PostMessage(
 		channelName,
 		storyText,
@@ -56,12 +60,8 @@ func (s *SlackService) FeedPost(storyText string) error {
 		return ErrMissingFeedChannel
 	}
 
-	s.SimplePost(
-		s.GetFeedChannel(),
-		storyText,
-		messages.IconDefault,
-		s.Config.GetBool("slack.as-user"),
-	)
+	s.SimplePost(s.GetFeedChannel(), storyText, messages.IconDefault, false)
+
 	return nil
 }
 
