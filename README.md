@@ -37,7 +37,7 @@ information about Phabulous.
 To compile Phabulous, you need a recent version of Go:
 
 ```
-go get github.com/etcinit/phabulous
+go get github.com/etcinit/phabulous/cmd/phabulous
 
 // or, for cross-compiling:
 
