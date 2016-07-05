@@ -1,5 +1,18 @@
 FROM golang
-RUN go get github.com/etcinit/phabulous/cmd/phabulous
-ADD config /go
+MAINTAINER Eduardo Trujillo <ed@chromabits.com>
+
+ENTRYPOINT ["/go/bin/phabulous"]
+CMD ["serve"]
+
 EXPOSE 8085
-CMD phabulous serve
+
+RUN mkdir -p /go/src/github.com/etcinit/phabulous
+WORKDIR /go/src/github.com/etcinit/phabulous
+
+COPY app ./app
+COPY cmd ./cmd
+COPY config ./config
+COPY LICENSE .
+
+RUN go get -v -d github.com/etcinit/phabulous/cmd/phabulous \
+  && go install github.com/etcinit/phabulous/cmd/phabulous
