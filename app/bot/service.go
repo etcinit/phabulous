@@ -57,7 +57,7 @@ func (s *SlackService) SimplePost(
 func (s *SlackService) SimpleImagePost(
 	channelName string,
 	storyText string,
-	imageUrl string,
+	imageURL string,
 	icon messages.Icon,
 	asUser bool,
 ) {
@@ -79,7 +79,7 @@ func (s *SlackService) SimpleImagePost(
 			IconURL:  string(icon),
 			AsUser:   asUser,
 			Attachments: []slack.Attachment{
-				slack.Attachment{ImageURL: imageUrl},
+				{ImageURL: imageURL},
 			},
 		},
 	)
