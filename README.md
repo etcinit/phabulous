@@ -14,7 +14,8 @@ status](https://app.wercker.com/status/f135144cca86098cea87c00a36dfc564/s/master
 status")](https://app.wercker.com/project/bykey/f135144cca86098cea87c00a36dfc564)
 [![Docker Repository on
 Quay](https://quay.io/repository/etcinit/phabulous/status "Docker Repository on
-Quay")](https://quay.io/repository/etcinit/phabulous)
+Quay")](https://quay.io/repository/etcinit/phabulous) [![Go Report
+Card](https://goreportcard.com/badge/github.com/etcinit/phabulous)](https://goreportcard.com/report/github.com/etcinit/phabulous)
 
 ## Features
 
