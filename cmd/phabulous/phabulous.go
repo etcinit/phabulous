@@ -52,11 +52,12 @@ func main() {
 
 	// Setup the default action. This action will be triggered when no
 	// subcommand is provided as an argument
-	app.Action = func(c *cli.Context) {
+	app.Action = func(c *cli.Context) error {
 		fmt.Println(
 			"Usage: phabulous [global options] command [command options] " +
 				"[arguments...]",
 		)
+		return nil
 	}
 
 	app.Flags = []cli.Flag{
