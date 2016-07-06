@@ -54,6 +54,8 @@ func (s *SlackService) SimplePost(
 	)
 }
 
+// SimpleImagePost posts a simple message to Slack, with an image. Most
+// parameters are set to defaults.
 func (s *SlackService) SimpleImagePost(
 	channelName string,
 	storyText string,
