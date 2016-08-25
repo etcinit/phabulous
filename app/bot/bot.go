@@ -49,7 +49,7 @@ type Bot struct {
 func (b *Bot) mentionRegex(contents string) *regexp.Regexp {
 	username := b.slackInfo.User.ID
 
-	return regexp.MustCompile("^<@" + username + ">: " + contents + "$")
+	return regexp.MustCompile("^<@" + username + ">:? " + contents + "$")
 }
 
 func (b *Bot) loadHandlers() {
