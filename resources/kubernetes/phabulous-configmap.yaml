@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: phabulous-config
+data:
+  phabulous.config: |-
+    server:
+      hostname: ''
+      port: 8085
+      debug: false
+      serious: false
+    slack:
+      token: YOUR_TOKEN_HERE
+      username: phabulous
+      as-user: true
+    conduit:
+      api: https://phabricator.replace.me
+      token: YOUR_TOKEN_HERE
+    channels:
+      feed: '#phabricator'
+      repositories:
+        CALLSIGN: '#channel'
+        OTHERCALLSIGN: '#otherchannel'
+      projects:
+        10: '#anotherchannel'
+    misc:
+      ignore-ca: false

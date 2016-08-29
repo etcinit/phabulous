@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: phabulous
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: phabulous
+    spec:
+      volumes:
+        - name: config-volume
+          configMap:
+            name: phabulous-config
+            items:
+              - key: phabulous.config
+                path: main.yml
+      containers:
+        - name: phabulous
+          image: quay.io/etcinit/phabulous:latest
+          ports:
+            - containerPort: 8085
+          volumeMounts:
+            - name: config-volume
+              mountPath: /go/src/github.com/etcinit/phabulous/config
