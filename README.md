@@ -28,15 +28,15 @@ Card](https://goreportcard.com/badge/github.com/etcinit/phabulous)](https://gore
 
 ## Guides
 
-- [Getting Started](http://phabricator.chromabits.com/w/phabulous/start/):
+- [Getting Started](https://github.com/etcinit/phabulous/wiki/Getting-Started):
 A guide on how to setup Phabulous for the first time.
-- [Upgrade Notes](http://phabricator.chromabits.com/w/phabulous/upgrade/):
+- [Upgrade Notes](https://github.com/etcinit/phabulous/wiki/Upgrade-Notes):
 Instructions on how to upgrade to newer versions of Phabulous.
-- [Command Reference](http://phabricator.chromabits.com/w/phabulous/commands/):
+- [Command Reference](https://github.com/etcinit/phabulous/wiki/Command-Reference):
 Reference for all available bot commands.
-- [Help & Troubleshooting](http://phabricator.chromabits.com/w/phabulous/faq/):
+- [Help & Troubleshooting](https://github.com/etcinit/phabulous/wiki/Help-&-Troubleshooting):
 Tips and answers to common problems.
-- [Wiki](http://phabricator.chromabits.com/w/phabulous/): More articles and
+- [Wiki](https://github.com/etcinit/phabulous/wiki): More articles and
 information about Phabulous.
 
 ## Compiling from source
