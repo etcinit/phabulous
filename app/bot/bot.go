@@ -4,8 +4,13 @@ import (
 	"math/rand"
 	"regexp"
 
+	"github.com/davecgh/go-spew/spew"
+	"github.com/etcinit/gonduit"
 	"github.com/etcinit/phabulous/app/factories"
 	"github.com/etcinit/phabulous/app/messages"
+	"github.com/etcinit/phabulous/app/modules"
+	"github.com/etcinit/phabulous/app/modules/core"
+	"github.com/etcinit/phabulous/app/modules/dev"
 	"github.com/nlopes/slack"
 )
 
@@ -20,6 +25,10 @@ func NewBot(
 		slackInfo:    slackInfo,
 		slackRTM:     slackRTM,
 		imChannelIDs: map[string]bool{},
+		modules: []modules.Module{
+			&dev.Module{},
+			&core.Module{},
+		},
 	}
 
 	// Make it easy to lookup if a channel is an IM channel.
@@ -42,8 +51,16 @@ type Bot struct {
 	slackInfo    *slack.Info
 	slackRTM     *slack.RTM
 	imChannelIDs map[string]bool
-	handlers     map[*regexp.Regexp]func(*slack.MessageEvent, []string)
-	imHandlers   map[*regexp.Regexp]func(*slack.MessageEvent, []string)
+	handlers     []HandlerTuple
+	imHandlers   []HandlerTuple
+
+	modules []modules.Module
+}
+
+// HandlerTuple a tuples of a pattern and a handler.
+type HandlerTuple struct {
+	Pattern *regexp.Regexp
+	Handler modules.Handler
 }
 
 func (b *Bot) mentionRegex(contents string) *regexp.Regexp {
@@ -53,27 +70,39 @@ func (b *Bot) mentionRegex(contents string) *regexp.Regexp {
 }
 
 func (b *Bot) loadHandlers() {
-	b.handlers = map[*regexp.Regexp]func(*slack.MessageEvent, []string){}
-	b.imHandlers = map[*regexp.Regexp]func(*slack.MessageEvent, []string){}
+	b.handlers = []HandlerTuple{}
+	b.imHandlers = []HandlerTuple{}
 
-	b.imHandlers[regexp.MustCompile("^lookup ([T|D][0-9]{1,16})$")] =
-		b.HandleLookup
-	b.imHandlers[regexp.MustCompile("^([T|D][0-9]{1,16})$")] =
-		b.HandleLookup
-	b.imHandlers[regexp.MustCompile("^help$")] = b.HandleHelp
+	//b.handlers[b.mentionRegex("summon D([0-9]{1,16})")] =
+	//	b.HandleSummon
 
-	b.imHandlers[regexp.MustCompile("dev:post:feed:test")] =
-		b.HandleTestFeedMessage
+	for _, module := range b.modules {
+		for _, command := range module.GetCommands() {
+			for _, rgx := range command.GetMatchers() {
+				b.handlers = append(b.handlers, HandlerTuple{
+					Pattern: regexp.MustCompile(rgx),
+					Handler: command.GetHandler(),
+				})
+			}
 
-	b.handlers[b.mentionRegex("summon D([0-9]{1,16})")] =
-		b.HandleSummon
-	b.handlers[b.mentionRegex("help")] = b.HandleHelp
-	b.handlers[b.mentionRegex("([T|D][0-9]{1,16})")] = b.HandleLookup
-	b.handlers[b.mentionRegex("lookup ([T|D][0-9]{1,16})")] = b.HandleLookup
-	b.handlers[regexp.MustCompile("^([T|D][0-9]{1,16})$")] = b.HandleLookup
-	b.handlers[regexp.MustCompile(
-		"meme ([^ ]{1,128}) \"(.{1,128})\" \"(.{1,128})\"$",
-	)] = b.HandleCreateMeme
+			for _, rgx := range command.GetIMMatchers() {
+				b.imHandlers = append(b.imHandlers, HandlerTuple{
+					Pattern: regexp.MustCompile(rgx),
+					Handler: command.GetHandler(),
+				})
+			}
+
+			for _, rgx := range command.GetMentionMatchers() {
+				b.handlers = append(b.handlers, HandlerTuple{
+					Pattern: b.mentionRegex(rgx),
+					Handler: command.GetHandler(),
+				})
+			}
+		}
+	}
+
+	spew.Dump(b.handlers)
+	spew.Dump(b.imHandlers)
 }
 
 // Excuse comes up with an excuse of why something failed.
@@ -129,9 +158,9 @@ func (b *Bot) ProcessMessage(ev *slack.MessageEvent) {
 	if _, ok := b.imChannelIDs[ev.Channel]; ok {
 		handled := false
 
-		for re, handler := range b.imHandlers {
-			if result := re.FindStringSubmatch(ev.Text); result != nil {
-				go handler(ev, result)
+		for _, tuple := range b.imHandlers {
+			if result := tuple.Pattern.FindStringSubmatch(ev.Text); result != nil {
+				go tuple.Handler(b, ev, result)
 
 				handled = true
 			}
@@ -145,9 +174,65 @@ func (b *Bot) ProcessMessage(ev *slack.MessageEvent) {
 		return
 	}
 
-	for re, handler := range b.handlers {
-		if result := re.FindStringSubmatch(ev.Text); result != nil {
-			go handler(ev, result)
+	for _, tuple := range b.handlers {
+		if result := tuple.Pattern.FindStringSubmatch(ev.Text); result != nil {
+			go tuple.Handler(b, ev, result)
 		}
 	}
+}
+
+// PostOnFeed posts a message on the feed.
+func (b *Bot) PostOnFeed(message string) {
+	b.Slacker.FeedPost(message)
+}
+
+// Post posts a simple messsage to the a channel.
+func (b *Bot) Post(
+	channel string,
+	message string,
+	icon messages.Icon,
+	asUser bool,
+) {
+	b.Slacker.SimplePost(channel, message, icon, asUser)
+}
+
+// PostImage posts a simple message with an image to the channel.
+func (b *Bot) PostImage(
+	channel string,
+	message string,
+	imageURL string,
+	icon messages.Icon,
+	asUser bool,
+) {
+	b.Slacker.SimpleImagePost(channel, message, imageURL, icon, asUser)
+}
+
+// GetModules returns the modules used in this bot.
+func (b *Bot) GetModules() []modules.Module {
+	return b.modules
+}
+
+// StartTyping notify Slack that the bot is "typing".
+func (b *Bot) StartTyping(channel string) {
+	b.slackRTM.SendMessage(b.slackRTM.NewTypingMessage(channel))
+}
+
+// MakeGonduit gets an instance of a gonduit client.
+func (b *Bot) MakeGonduit() (*gonduit.Conn, error) {
+	return b.Slacker.Factory.Make()
+}
+
+// MakeRTM returns an instance of the Slack RTM client.
+func (b *Bot) MakeRTM() *slack.RTM {
+	return b.slackRTM
+}
+
+// HandleUsage shows usage tip.
+func (b *Bot) HandleUsage(ev *slack.MessageEvent, matches []string) {
+	b.Slacker.SimplePost(
+		ev.Channel,
+		"Hi. For usage information, type `help`.",
+		messages.IconTasks,
+		true,
+	)
 }
