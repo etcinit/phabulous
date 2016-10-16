@@ -11,6 +11,7 @@ import (
 	"github.com/etcinit/phabulous/app/modules"
 	"github.com/etcinit/phabulous/app/modules/core"
 	"github.com/etcinit/phabulous/app/modules/dev"
+	"github.com/etcinit/phabulous/app/modules/extension"
 	"github.com/nlopes/slack"
 )
 
@@ -28,6 +29,7 @@ func NewBot(
 		modules: []modules.Module{
 			&dev.Module{},
 			&core.Module{},
+			&extension.Module{},
 		},
 	}
 
