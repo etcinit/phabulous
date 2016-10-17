@@ -3,6 +3,7 @@ package modules
 import (
 	"github.com/etcinit/gonduit"
 	"github.com/etcinit/phabulous/app/messages"
+	"github.com/jacobstr/confer"
 	"github.com/nlopes/slack"
 )
 
@@ -22,6 +23,7 @@ type Service interface {
 	MakeGonduit() (*gonduit.Conn, error)
 	MakeRTM() *slack.RTM
 	MakeSlack() *slack.Client
+	MakeConfig() *confer.Config
 	GetModules() []Module
 }
 

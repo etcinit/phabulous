@@ -12,6 +12,7 @@ import (
 	"github.com/etcinit/phabulous/app/modules/core"
 	"github.com/etcinit/phabulous/app/modules/dev"
 	"github.com/etcinit/phabulous/app/modules/extension"
+	"github.com/jacobstr/confer"
 	"github.com/nlopes/slack"
 )
 
@@ -232,6 +233,11 @@ func (b *Bot) MakeRTM() *slack.RTM {
 // MakeSlack returns an instance of the Slack Web client.
 func (b *Bot) MakeSlack() *slack.Client {
 	return b.Slacker.Slack
+}
+
+// MakeConfig returns an instance of the configuration store.
+func (b *Bot) MakeConfig() *confer.Config {
+	return b.Slacker.Config
 }
 
 // HandleUsage shows usage tip.
