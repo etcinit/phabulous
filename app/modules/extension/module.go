@@ -14,5 +14,6 @@ func (m *Module) GetName() string {
 func (m *Module) GetCommands() []modules.Command {
 	return []modules.Command{
 		&WhoamiCommand{},
+		&WhoisCommand{},
 	}
 }

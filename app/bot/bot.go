@@ -229,6 +229,11 @@ func (b *Bot) MakeRTM() *slack.RTM {
 	return b.slackRTM
 }
 
+// MakeSlack returns an instance of the Slack Web client.
+func (b *Bot) MakeSlack() *slack.Client {
+	return b.Slacker.Slack
+}
+
 // HandleUsage shows usage tip.
 func (b *Bot) HandleUsage(ev *slack.MessageEvent, matches []string) {
 	b.Slacker.SimplePost(
