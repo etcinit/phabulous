@@ -21,6 +21,7 @@ type Service interface {
 	Excuse(*slack.MessageEvent, error)
 	MakeGonduit() (*gonduit.Conn, error)
 	MakeRTM() *slack.RTM
+	MakeSlack() *slack.Client
 	GetModules() []Module
 }
 
