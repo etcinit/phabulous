@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/etcinit/gonduit/requests"
+	"github.com/etcinit/phabulous/app/gonduit/extensions"
+	phabulousRequests "github.com/etcinit/phabulous/app/gonduit/extensions/requests"
 	"github.com/etcinit/phabulous/app/messages"
 	"github.com/etcinit/phabulous/app/modules"
 	"github.com/nlopes/slack"
@@ -94,9 +96,48 @@ func (c *SummonCommand) GetHandler() modules.Handler {
 			return
 		}
 
+		slackMap, err := extensions.PhabulousToSlack(
+			conn,
+			phabulousRequests.PhabulousToSlackRequest{
+				UserPHIDs: (*res)[0].Reviewers,
+			},
+		)
+		if err != nil {
+			s.Excuse(ev, err)
+			return
+		}
+
+		slackUsers, err := s.MakeSlack().GetUsers()
+		if err != nil {
+			s.Excuse(ev, err)
+			return
+		}
+
 		reviewerNames := []string{}
 
 		for _, reviewerPHID := range (*res)[0].Reviewers {
+			if slackUserInfo, ok := (*slackMap)[reviewerPHID]; ok {
+				var foundUser *slack.User
+				for _, user := range slackUsers {
+					if user.ID == slackUserInfo.AccountID {
+						foundUser = &user
+						break
+					}
+				}
+
+				if foundUser != nil {
+					reviewerNames = append(
+						reviewerNames,
+						fmt.Sprintf(
+							"@%s :slack:",
+							foundUser.Name,
+						),
+					)
+
+					continue
+				}
+			}
+
 			nameRes, err := conn.PHIDQuerySingle(reviewerPHID)
 			if err != nil {
 				s.Excuse(ev, err)

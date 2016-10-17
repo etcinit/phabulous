@@ -98,8 +98,8 @@ func toSlack(
 	if len(*accounts) == 0 {
 		s.Post(
 			ev.Channel,
-			"I was unable to find a Phabricator user linked with that "+
-				"Slack account. Make sure they are linked under "+
+			"I was unable to find a Slack user linked with that "+
+				"Phabricator account. Make sure they are linked under "+
 				"_External Accounts_ in the user's Phabricator settings.",
 			messages.IconTasks,
 			true,
