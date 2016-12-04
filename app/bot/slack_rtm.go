@@ -24,7 +24,7 @@ Loop:
 				s.Logger.Debugln("Infos:", ev.Info)
 				s.Logger.Debugln("Connection counter:", ev.ConnectionCount)
 
-				s.Bot = NewBot(s, rtm, ev.Info)
+				s.Bot = NewSlackBot(s, rtm, ev.Info)
 
 				s.Logger.Infoln("Bot Slack ID: ", ev.Info.User.ID)
 

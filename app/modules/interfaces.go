@@ -19,12 +19,15 @@ type Service interface {
 	)
 	PostOnFeed(string)
 	StartTyping(string)
-	Excuse(*slack.MessageEvent, error)
-	MakeGonduit() (*gonduit.Conn, error)
-	MakeRTM() *slack.RTM
-	MakeSlack() *slack.Client
-	MakeConfig() *confer.Config
+	GetUsername(string) (string, error)
+	Excuse(messages.Message, error)
+	GetGonduit() (*gonduit.Conn, error)
+	GetConfig() *confer.Config
 	GetModules() []Module
+}
+
+type SlackService interface {
+	GetSlack() *slack.Client
 }
 
 // A Module provides a set of commands.
@@ -44,4 +47,4 @@ type Command interface {
 }
 
 // A Handler handles messages.
-type Handler func(Service, *slack.MessageEvent, []string)
+type Handler func(Service, messages.Message, []string)

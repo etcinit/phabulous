@@ -8,6 +8,7 @@ import (
 	"github.com/etcinit/gonduit/requests"
 	"github.com/etcinit/phabulous/app/gonduit/extensions"
 	phabulousRequests "github.com/etcinit/phabulous/app/gonduit/extensions/requests"
+	"github.com/etcinit/phabulous/app/gonduit/extensions/responses"
 	"github.com/etcinit/phabulous/app/messages"
 	"github.com/etcinit/phabulous/app/modules"
 	"github.com/nlopes/slack"
@@ -47,22 +48,22 @@ func (c *SummonCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (c *SummonCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, ev *slack.MessageEvent, matches []string) {
-		s.StartTyping(ev.Channel)
+	return func(s modules.Service, m messages.Message, matches []string) {
+		s.StartTyping(m.GetChannel())
 
 		if len(matches) < 2 {
 			return
 		}
 
-		conn, err := s.MakeGonduit()
+		conn, err := s.GetGonduit()
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 			return
 		}
 
 		id, err := strconv.Atoi(matches[1])
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 			return
 		}
 
@@ -70,13 +71,13 @@ func (c *SummonCommand) GetHandler() modules.Handler {
 			IDs: []uint64{uint64(id)},
 		})
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 			return
 		}
 
 		if len(*res) == 0 {
 			s.Post(
-				ev.Channel,
+				m.GetChannel(),
 				"Revision not found.",
 				messages.IconDefault,
 				true,
@@ -87,7 +88,7 @@ func (c *SummonCommand) GetHandler() modules.Handler {
 
 		if len((*res)[0].Reviewers) == 0 {
 			s.Post(
-				ev.Channel,
+				m.GetChannel(),
 				"Revision has no reviewers.",
 				messages.IconDefault,
 				true,
@@ -96,21 +97,26 @@ func (c *SummonCommand) GetHandler() modules.Handler {
 			return
 		}
 
-		slackMap, err := extensions.PhabulousToSlack(
-			conn,
-			phabulousRequests.PhabulousToSlackRequest{
-				UserPHIDs: (*res)[0].Reviewers,
-			},
-		)
-		if err != nil {
-			s.Excuse(ev, err)
-			return
-		}
+		var slackMap *responses.PhabulousToSlackResponse
+		var slackUsers []slack.User
 
-		slackUsers, err := s.MakeSlack().GetUsers()
-		if err != nil {
-			s.Excuse(ev, err)
-			return
+		if sb, ok := s.(modules.SlackService); ok {
+			slackMap, err = extensions.PhabulousToSlack(
+				conn,
+				phabulousRequests.PhabulousToSlackRequest{
+					UserPHIDs: (*res)[0].Reviewers,
+				},
+			)
+			if err != nil {
+				s.Excuse(m, err)
+				return
+			}
+
+			slackUsers, err = sb.GetSlack().GetUsers()
+			if err != nil {
+				s.Excuse(m, err)
+				return
+			}
 		}
 
 		reviewerNames := []string{}
@@ -140,24 +146,24 @@ func (c *SummonCommand) GetHandler() modules.Handler {
 
 			nameRes, err := conn.PHIDQuerySingle(reviewerPHID)
 			if err != nil {
-				s.Excuse(ev, err)
+				s.Excuse(m, err)
 				return
 			}
 
 			reviewerNames = append(reviewerNames, "@"+(*nameRes).Name)
 		}
 
-		userInfo, err := s.MakeRTM().GetUserInfo(ev.User)
+		userName, err := s.GetUsername(m.GetUserId())
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 			return
 		}
 
 		s.Post(
-			ev.Channel,
+			m.GetChannel(),
 			fmt.Sprintf(
 				"*@%s summons %s to review D%s:*\n_%s (%s)_\n%s",
-				userInfo.Name,
+				userName,
 				strings.Join(reviewerNames, ", "),
 				matches[1],
 				(*res)[0].Title,

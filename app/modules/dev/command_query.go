@@ -5,7 +5,6 @@ import (
 
 	"github.com/etcinit/phabulous/app/messages"
 	"github.com/etcinit/phabulous/app/modules"
-	"github.com/nlopes/slack"
 )
 
 // QueryCommand allows one to send test messages to the feed channel.
@@ -38,17 +37,16 @@ func (t *QueryCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (t *QueryCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, ev *slack.MessageEvent, matches []string) {
-		conn, err := s.MakeGonduit()
-
+	return func(s modules.Service, m messages.Message, matches []string) {
+		conn, err := s.GetGonduit()
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 			return
 		}
 
 		res, err := conn.ConduitQuery()
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 			return
 		}
 
@@ -62,6 +60,6 @@ func (t *QueryCommand) GetHandler() modules.Handler {
 			)
 		}
 
-		s.Post(ev.Channel, message, messages.IconTasks, true)
+		s.Post(m.GetChannel(), message, messages.IconTasks, true)
 	}
 }

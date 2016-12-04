@@ -1,8 +1,8 @@
 package dev
 
 import (
+	"github.com/etcinit/phabulous/app/messages"
 	"github.com/etcinit/phabulous/app/modules"
-	"github.com/nlopes/slack"
 )
 
 // TestCommand allows one to send test messages to the feed channel.
@@ -35,7 +35,7 @@ func (t *TestCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (t *TestCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, ev *slack.MessageEvent, matches []string) {
+	return func(s modules.Service, m messages.Message, matches []string) {
 		s.PostOnFeed("This is a test message. Please ignore me.")
 	}
 }

@@ -42,41 +42,52 @@ func (t *WhoisCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (t *WhoisCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, ev *slack.MessageEvent, matches []string) {
-		s.StartTyping(ev.Channel)
+	return func(s modules.Service, m messages.Message, matches []string) {
+		s.StartTyping(m.GetChannel())
 
-		conn, err := s.MakeGonduit()
-
+		conn, err := s.GetGonduit()
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 			return
 		}
 
-		if matches[1] == "slack" {
-			fromSlack(s, conn, ev, matches[2])
-		} else if matches[1] == "phabricator" {
-			toSlack(s, conn, ev, matches[2])
+		if sb, ok := s.(modules.SlackService); ok {
+			slack := sb.GetSlack()
+
+			if matches[1] == "slack" {
+				fromSlack(s, slack, conn, m, matches[2])
+			} else if matches[1] == "phabricator" {
+				toSlack(s, slack, conn, m, matches[2])
+			}
+		} else {
+			s.Post(
+				m.GetChannel(),
+				"This command only works over Slack",
+				messages.IconTasks,
+				true,
+			)
 		}
 	}
 }
 
 func toSlack(
 	s modules.Service,
+	client *slack.Client,
 	conn *gonduit.Conn,
-	ev *slack.MessageEvent,
+	m messages.Message,
 	username string,
 ) {
 	users, err := conn.UserQuery(gonduitRequests.UserQueryRequest{
 		Usernames: []string{username},
 	})
 	if err != nil {
-		s.Excuse(ev, err)
+		s.Excuse(m, err)
 		return
 	}
 
 	if len(*users) == 0 {
 		s.Post(
-			ev.Channel,
+			m.GetChannel(),
 			"I was unable to find a user with that name on Phabricator.",
 			messages.IconTasks,
 			true,
@@ -91,13 +102,13 @@ func toSlack(
 		},
 	)
 	if err != nil {
-		s.Excuse(ev, err)
+		s.Excuse(m, err)
 		return
 	}
 
 	if len(*accounts) == 0 {
 		s.Post(
-			ev.Channel,
+			m.GetChannel(),
 			"I was unable to find a Slack user linked with that "+
 				"Phabricator account. Make sure they are linked under "+
 				"_External Accounts_ in the user's Phabricator settings.",
@@ -107,10 +118,9 @@ func toSlack(
 		return
 	}
 
-	client := s.MakeSlack()
 	slackUsers, err := client.GetUsers()
 	if err != nil {
-		s.Excuse(ev, err)
+		s.Excuse(m, err)
 		return
 	}
 
@@ -124,7 +134,7 @@ func toSlack(
 
 	if foundUser == nil {
 		s.Post(
-			ev.Channel,
+			m.GetChannel(),
 			"I was unable to find a user with that name on this Slack "+
 				"organization",
 			messages.IconTasks,
@@ -134,7 +144,7 @@ func toSlack(
 	}
 
 	s.Post(
-		ev.Channel,
+		m.GetChannel(),
 		fmt.Sprintf(
 			"*%s* is known as *%s* on Slack.",
 			username,
@@ -147,15 +157,14 @@ func toSlack(
 
 func fromSlack(
 	s modules.Service,
+	client *slack.Client,
 	conn *gonduit.Conn,
-	ev *slack.MessageEvent,
+	m messages.Message,
 	username string,
 ) {
-	client := s.MakeSlack()
-
 	users, err := client.GetUsers()
 	if err != nil {
-		s.Excuse(ev, err)
+		s.Excuse(m, err)
 		return
 	}
 
@@ -169,7 +178,7 @@ func fromSlack(
 
 	if foundUser == nil {
 		s.Post(
-			ev.Channel,
+			m.GetChannel(),
 			"I was unable to find a user with that name on this Slack "+
 				"organization",
 			messages.IconTasks,
@@ -185,13 +194,13 @@ func fromSlack(
 		},
 	)
 	if err != nil {
-		s.Excuse(ev, err)
+		s.Excuse(m, err)
 		return
 	}
 
 	if len(*res) == 0 {
 		s.Post(
-			ev.Channel,
+			m.GetChannel(),
 			"I was unable to find a Phabricator user linked with that "+
 				"Slack account. Make sure they are linked under "+
 				"_External Accounts_ in the user's Phabricator settings.",
@@ -211,13 +220,13 @@ func fromSlack(
 	})
 
 	if err != nil {
-		s.Excuse(ev, err)
+		s.Excuse(m, err)
 		return
 	}
 
 	for _, user := range *res2 {
 		s.Post(
-			ev.Channel,
+			m.GetChannel(),
 			fmt.Sprintf(
 				"*%s* is known as *%s* on Phabricator.",
 				username,

@@ -4,7 +4,6 @@ import (
 	"math/rand"
 	"regexp"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/etcinit/gonduit"
 	"github.com/etcinit/phabulous/app/factories"
 	"github.com/etcinit/phabulous/app/messages"
@@ -17,12 +16,12 @@ import (
 )
 
 // NewBot creates a new instance of a Bot.
-func NewBot(
+func NewSlackBot(
 	slacker *SlackService,
 	slackRTM *slack.RTM,
 	slackInfo *slack.Info,
-) *Bot {
-	bot := &Bot{
+) *SlackBot {
+	bot := &SlackBot{
 		Slacker:      slacker,
 		slackInfo:    slackInfo,
 		slackRTM:     slackRTM,
@@ -45,9 +44,9 @@ func NewBot(
 	return bot
 }
 
-// Bot represents the state of the bot. It also contains functions related to
-// the interactive portion of Phabulous.
-type Bot struct {
+// SlackBot represents the state of the bot. It also contains functions
+// related to the interactive portion of Phabulous.
+type SlackBot struct {
 	Slacker *SlackService
 	Factory *factories.GonduitFactory
 
@@ -66,18 +65,15 @@ type HandlerTuple struct {
 	Handler modules.Handler
 }
 
-func (b *Bot) mentionRegex(contents string) *regexp.Regexp {
+func (b *SlackBot) mentionRegex(contents string) *regexp.Regexp {
 	username := b.slackInfo.User.ID
 
 	return regexp.MustCompile("^<@" + username + ">:?\\s+" + contents + "$")
 }
 
-func (b *Bot) loadHandlers() {
+func (b *SlackBot) loadHandlers() {
 	b.handlers = []HandlerTuple{}
 	b.imHandlers = []HandlerTuple{}
-
-	//b.handlers[b.mentionRegex("summon D([0-9]{1,16})")] =
-	//	b.HandleSummon
 
 	for _, module := range b.modules {
 		for _, command := range module.GetCommands() {
@@ -103,18 +99,15 @@ func (b *Bot) loadHandlers() {
 			}
 		}
 	}
-
-	spew.Dump(b.handlers)
-	spew.Dump(b.imHandlers)
 }
 
 // Excuse comes up with an excuse of why something failed.
-func (b *Bot) Excuse(ev *slack.MessageEvent, err error) {
+func (b *SlackBot) Excuse(m messages.Message, err error) {
 	b.Slacker.Logger.Error(err)
 
 	if b.Slacker.Config.GetBool("server.serious") {
 		b.Slacker.SimplePost(
-			ev.Channel,
+			m.GetChannel(),
 			"An error ocurred and I was unable to fulfill your request.",
 			messages.IconDefault,
 			true,
@@ -137,7 +130,7 @@ func (b *Bot) Excuse(ev *slack.MessageEvent, err error) {
 	}
 
 	b.Slacker.SimplePost(
-		ev.Channel,
+		m.GetChannel(),
 		excuses[rand.Intn(len(excuses))],
 		messages.IconDefault,
 		true,
@@ -145,13 +138,13 @@ func (b *Bot) Excuse(ev *slack.MessageEvent, err error) {
 }
 
 // ProcessIMOpen handles IM open events.
-func (b *Bot) ProcessIMOpen(ev *slack.IMOpenEvent) {
+func (b *SlackBot) ProcessIMOpen(ev *slack.IMOpenEvent) {
 	b.imChannelIDs[ev.Channel] = true
 }
 
 // ProcessMessage processes incoming messages events and calls the appropriate
 // handlers.
-func (b *Bot) ProcessMessage(ev *slack.MessageEvent) {
+func (b *SlackBot) ProcessMessage(ev *slack.MessageEvent) {
 	// Ignore messages from the bot itself.
 	if ev.User == b.slackInfo.User.ID {
 		return
@@ -163,7 +156,7 @@ func (b *Bot) ProcessMessage(ev *slack.MessageEvent) {
 
 		for _, tuple := range b.imHandlers {
 			if result := tuple.Pattern.FindStringSubmatch(ev.Text); result != nil {
-				go tuple.Handler(b, ev, result)
+				go tuple.Handler(b, messages.NewSlackMessage(ev), result)
 
 				handled = true
 			}
@@ -171,7 +164,7 @@ func (b *Bot) ProcessMessage(ev *slack.MessageEvent) {
 
 		// On an IM, we will show a small help message if no handlers are found.
 		if handled == false {
-			go b.HandleUsage(ev, []string{})
+			go b.HandleUsage(messages.NewSlackMessage(ev), []string{})
 		}
 
 		return
@@ -179,18 +172,18 @@ func (b *Bot) ProcessMessage(ev *slack.MessageEvent) {
 
 	for _, tuple := range b.handlers {
 		if result := tuple.Pattern.FindStringSubmatch(ev.Text); result != nil {
-			go tuple.Handler(b, ev, result)
+			go tuple.Handler(b, messages.NewSlackMessage(ev), result)
 		}
 	}
 }
 
 // PostOnFeed posts a message on the feed.
-func (b *Bot) PostOnFeed(message string) {
+func (b *SlackBot) PostOnFeed(message string) {
 	b.Slacker.FeedPost(message)
 }
 
 // Post posts a simple messsage to the a channel.
-func (b *Bot) Post(
+func (b *SlackBot) Post(
 	channel string,
 	message string,
 	icon messages.Icon,
@@ -200,7 +193,7 @@ func (b *Bot) Post(
 }
 
 // PostImage posts a simple message with an image to the channel.
-func (b *Bot) PostImage(
+func (b *SlackBot) PostImage(
 	channel string,
 	message string,
 	imageURL string,
@@ -211,41 +204,44 @@ func (b *Bot) PostImage(
 }
 
 // GetModules returns the modules used in this bot.
-func (b *Bot) GetModules() []modules.Module {
+func (b *SlackBot) GetModules() []modules.Module {
 	return b.modules
 }
 
 // StartTyping notify Slack that the bot is "typing".
-func (b *Bot) StartTyping(channel string) {
+func (b *SlackBot) StartTyping(channel string) {
 	b.slackRTM.SendMessage(b.slackRTM.NewTypingMessage(channel))
 }
 
-// MakeGonduit gets an instance of a gonduit client.
-func (b *Bot) MakeGonduit() (*gonduit.Conn, error) {
+// GetGonduit gets an instance of a gonduit client.
+func (b *SlackBot) GetGonduit() (*gonduit.Conn, error) {
 	return b.Slacker.Factory.Make()
 }
 
-// MakeRTM returns an instance of the Slack RTM client.
-func (b *Bot) MakeRTM() *slack.RTM {
-	return b.slackRTM
-}
-
-// MakeSlack returns an instance of the Slack Web client.
-func (b *Bot) MakeSlack() *slack.Client {
-	return b.Slacker.Slack
-}
-
-// MakeConfig returns an instance of the configuration store.
-func (b *Bot) MakeConfig() *confer.Config {
+// GetConfig returns an instance of the configuration store.
+func (b *SlackBot) GetConfig() *confer.Config {
 	return b.Slacker.Config
 }
 
+func (b *SlackBot) GetSlack() *slack.Client {
+	return b.Slacker.Slack
+}
+
 // HandleUsage shows usage tip.
-func (b *Bot) HandleUsage(ev *slack.MessageEvent, matches []string) {
+func (b *SlackBot) HandleUsage(m messages.Message, matches []string) {
 	b.Slacker.SimplePost(
-		ev.Channel,
+		m.GetChannel(),
 		"Hi. For usage information, type `help`.",
 		messages.IconTasks,
 		true,
 	)
+}
+
+func (b *SlackBot) GetUsername(userId string) (string, error) {
+	userInfo, err := b.GetSlack().GetUserInfo(userId)
+	if err != nil {
+		return "", err
+	}
+
+	return userInfo.Name, nil
 }

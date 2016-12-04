@@ -6,7 +6,6 @@ import (
 	"github.com/etcinit/gonduit/requests"
 	"github.com/etcinit/phabulous/app/messages"
 	"github.com/etcinit/phabulous/app/modules"
-	"github.com/nlopes/slack"
 )
 
 // MemeCommand allows users to create memes.
@@ -41,12 +40,12 @@ func (c *MemeCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (c *MemeCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, ev *slack.MessageEvent, matches []string) {
-		s.StartTyping(ev.Channel)
+	return func(s modules.Service, m messages.Message, matches []string) {
+		s.StartTyping(m.GetChannel())
 
-		conn, err := s.MakeGonduit()
+		conn, err := s.GetGonduit()
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 			return
 		}
 
@@ -56,13 +55,13 @@ func (c *MemeCommand) GetHandler() modules.Handler {
 			LowerText: matches[3],
 		})
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 
 			return
 		}
 
 		s.PostImage(
-			ev.Channel,
+			m.GetChannel(),
 			fmt.Sprintf("%s", res.URI),
 			res.URI,
 			messages.IconTasks,

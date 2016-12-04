@@ -6,7 +6,6 @@ import (
 
 	"github.com/etcinit/phabulous/app/messages"
 	"github.com/etcinit/phabulous/app/modules"
-	"github.com/nlopes/slack"
 )
 
 // HelpCommand allows one to send test messages to the feed channel.
@@ -39,7 +38,7 @@ func (c *HelpCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (c *HelpCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, ev *slack.MessageEvent, matches []string) {
+	return func(s modules.Service, m messages.Message, matches []string) {
 		message := "Available commands:\n"
 
 		for _, module := range s.GetModules() {
@@ -67,6 +66,6 @@ func (c *HelpCommand) GetHandler() modules.Handler {
 			}
 		}
 
-		s.Post(ev.Channel, message, messages.IconTasks, true)
+		s.Post(m.GetChannel(), message, messages.IconTasks, true)
 	}
 }
