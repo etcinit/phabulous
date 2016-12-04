@@ -8,7 +8,6 @@ import (
 	"github.com/etcinit/phabulous/app/gonduit/extensions/requests"
 	"github.com/etcinit/phabulous/app/messages"
 	"github.com/etcinit/phabulous/app/modules"
-	"github.com/nlopes/slack"
 )
 
 // WhoamiCommand allows one to send test messages to the feed channel.
@@ -41,28 +40,27 @@ func (t *WhoamiCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (t *WhoamiCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, ev *slack.MessageEvent, matches []string) {
-		conn, err := s.MakeGonduit()
-
+	return func(s modules.Service, m messages.Message, matches []string) {
+		conn, err := s.GetGonduit()
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 			return
 		}
 
 		res, err := extensions.PhabulousFromSlack(
 			conn,
 			requests.PhabulousFromSlackRequest{
-				AccountIDs: []string{ev.User},
+				AccountIDs: []string{m.GetUserId()},
 			},
 		)
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 			return
 		}
 
 		if len(*res) == 0 {
 			s.Post(
-				ev.Channel,
+				m.GetChannel(),
 				"I was unable to find a Phabricator user linked with your "+
 					"Slack account. Make sure they are linked under "+
 					"_External Accounts_ in your Phabricator user settings.",
@@ -82,13 +80,13 @@ func (t *WhoamiCommand) GetHandler() modules.Handler {
 		})
 
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 			return
 		}
 
 		for _, user := range *res2 {
 			s.Post(
-				ev.Channel,
+				m.GetChannel(),
 				fmt.Sprintf(
 					"You are known as %s on Phabricator.",
 					user.UserName,

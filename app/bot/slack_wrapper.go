@@ -22,7 +22,7 @@ type SlackService struct {
 	Factory *factories.GonduitFactory `inject:""`
 
 	Slack *slack.Client
-	Bot   *Bot
+	Bot   *SlackBot
 }
 
 // SimplePost posts a simple message to Slack. Most parameters are set to

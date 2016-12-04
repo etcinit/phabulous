@@ -5,7 +5,6 @@ import (
 
 	"github.com/etcinit/phabulous/app/messages"
 	"github.com/etcinit/phabulous/app/modules"
-	"github.com/nlopes/slack"
 )
 
 // LookupCommand allows users to lookup objects from Phabricator.
@@ -46,24 +45,24 @@ func (c *LookupCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (c *LookupCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, ev *slack.MessageEvent, matches []string) {
-		s.StartTyping(ev.Channel)
+	return func(s modules.Service, m messages.Message, matches []string) {
+		s.StartTyping(m.GetChannel())
 
-		conn, err := s.MakeGonduit()
+		conn, err := s.GetGonduit()
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 			return
 		}
 
 		res, err := conn.PHIDLookupSingle(matches[1])
 		if err != nil {
-			s.Excuse(ev, err)
+			s.Excuse(m, err)
 			return
 		}
 
 		if res == nil {
 			s.Post(
-				ev.Channel,
+				m.GetChannel(),
 				fmt.Sprintf("I couldn't find %s", matches[1]),
 				messages.IconDefault,
 				true,
@@ -72,7 +71,7 @@ func (c *LookupCommand) GetHandler() modules.Handler {
 		}
 
 		s.Post(
-			ev.Channel,
+			m.GetChannel(),
 			fmt.Sprintf("*%s* (%s): %s", res.FullName, res.Status, res.URI),
 			messages.IconTasks,
 			true,
