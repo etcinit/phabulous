@@ -5,16 +5,21 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/etcinit/phabulous/app/connectors"
 	"github.com/etcinit/phabulous/app/factories"
+	"github.com/etcinit/phabulous/app/interfaces"
+	"github.com/etcinit/phabulous/app/modules/core"
+	"github.com/etcinit/phabulous/app/modules/dev"
+	"github.com/etcinit/phabulous/app/modules/extension"
 	"github.com/jacobstr/confer"
 )
 
 // Phabulous is the root node of the DI graph
 type Phabulous struct {
-	Config         *confer.Config            `inject:""`
-	Engine         *EngineService            `inject:""`
-	Serve          *ServeService             `inject:""`
-	Logger         *logrus.Logger            `inject:""`
-	GonduitFactory *factories.GonduitFactory `inject:""`
+	Config           *confer.Config            `inject:""`
+	Engine           *EngineService            `inject:""`
+	Serve            *ServeService             `inject:""`
+	Logger           *logrus.Logger            `inject:""`
+	GonduitFactory   *factories.GonduitFactory `inject:""`
+	ConnectorManager *ConnectorManager         `inject:""`
 
 	SlackConnector *connectors.SlackConnector
 }
@@ -46,6 +51,14 @@ func (p *Phabulous) Boot(c *cli.Context) {
 		p.GonduitFactory,
 		p.Logger,
 	)
+
+	p.ConnectorManager.RegisterConnector(p.SlackConnector)
+
+	p.ConnectorManager.LoadModules([]interfaces.Module{
+		&core.Module{},
+		&dev.Module{},
+		&extension.Module{},
+	})
 
 	p.Logger.Debugln("Booted upper layer.")
 }

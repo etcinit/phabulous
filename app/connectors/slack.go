@@ -20,6 +20,7 @@ func NewSlackConnector(
 		config:         config,
 		slack:          slack,
 		gonduitFactory: gonduitFactory,
+		modules:        []interfaces.Module{},
 	}
 
 	return connector
@@ -43,7 +44,7 @@ type SlackConnector struct {
 }
 
 // Boot handles RTM events in Slack.
-func (c *SlackConnector) Boot() {
+func (c *SlackConnector) Boot() error {
 	c.logger.Infoln("Starting RTM handler...")
 
 	rtm := c.slack.NewRTM()
@@ -107,4 +108,6 @@ Loop:
 	}
 
 	c.logger.Warnln("RTM handler has stopped.")
+
+	return nil
 }
