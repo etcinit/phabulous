@@ -1,8 +1,8 @@
 package dev
 
 import (
+	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
-	"github.com/etcinit/phabulous/app/modules"
 )
 
 // TestCommand allows one to send test messages to the feed channel.
@@ -34,8 +34,8 @@ func (t *TestCommand) GetMentionMatchers() []string {
 }
 
 // GetHandler returns the handler for this command.
-func (t *TestCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, m messages.Message, matches []string) {
+func (t *TestCommand) GetHandler() interfaces.Handler {
+	return func(s interfaces.Bot, m messages.Message, matches []string) {
 		s.PostOnFeed("This is a test message. Please ignore me.")
 	}
 }

@@ -3,8 +3,8 @@ package core
 import (
 	"fmt"
 
+	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
-	"github.com/etcinit/phabulous/app/modules"
 )
 
 // ModulesCommand allows one to send test messages to the feed channel.
@@ -36,8 +36,8 @@ func (c *ModulesCommand) GetMentionMatchers() []string {
 }
 
 // GetHandler returns the handler for this command.
-func (c *ModulesCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, m messages.Message, matches []string) {
+func (c *ModulesCommand) GetHandler() interfaces.Handler {
+	return func(s interfaces.Bot, m messages.Message, matches []string) {
 		message := "Loaded modules:\n"
 
 		for _, module := range s.GetModules() {

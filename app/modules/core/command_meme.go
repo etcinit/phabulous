@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/etcinit/gonduit/requests"
+	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
-	"github.com/etcinit/phabulous/app/modules"
 )
 
 // MemeCommand allows users to create memes.
@@ -39,8 +39,8 @@ func (c *MemeCommand) GetMentionMatchers() []string {
 }
 
 // GetHandler returns the handler for this command.
-func (c *MemeCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, m messages.Message, matches []string) {
+func (c *MemeCommand) GetHandler() interfaces.Handler {
+	return func(s interfaces.Bot, m messages.Message, matches []string) {
 		s.StartTyping(m.GetChannel())
 
 		conn, err := s.GetGonduit()

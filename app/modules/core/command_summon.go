@@ -9,8 +9,8 @@ import (
 	"github.com/etcinit/phabulous/app/gonduit/extensions"
 	phabulousRequests "github.com/etcinit/phabulous/app/gonduit/extensions/requests"
 	"github.com/etcinit/phabulous/app/gonduit/extensions/responses"
+	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
-	"github.com/etcinit/phabulous/app/modules"
 	"github.com/nlopes/slack"
 )
 
@@ -47,8 +47,8 @@ func (c *SummonCommand) GetMentionMatchers() []string {
 }
 
 // GetHandler returns the handler for this command.
-func (c *SummonCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, m messages.Message, matches []string) {
+func (c *SummonCommand) GetHandler() interfaces.Handler {
+	return func(s interfaces.Bot, m messages.Message, matches []string) {
 		s.StartTyping(m.GetChannel())
 
 		if len(matches) < 2 {
@@ -100,7 +100,7 @@ func (c *SummonCommand) GetHandler() modules.Handler {
 		var slackMap *responses.PhabulousToSlackResponse
 		var slackUsers []slack.User
 
-		if sb, ok := s.(modules.SlackService); ok {
+		if sb, ok := s.(interfaces.SlackBot); ok {
 			slackMap, err = extensions.PhabulousToSlack(
 				conn,
 				phabulousRequests.PhabulousToSlackRequest{

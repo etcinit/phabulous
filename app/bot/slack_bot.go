@@ -6,8 +6,8 @@ import (
 
 	"github.com/etcinit/gonduit"
 	"github.com/etcinit/phabulous/app/factories"
+	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
-	"github.com/etcinit/phabulous/app/modules"
 	"github.com/etcinit/phabulous/app/modules/core"
 	"github.com/etcinit/phabulous/app/modules/dev"
 	"github.com/etcinit/phabulous/app/modules/extension"
@@ -26,7 +26,7 @@ func NewSlackBot(
 		slackInfo:    slackInfo,
 		slackRTM:     slackRTM,
 		imChannelIDs: map[string]bool{},
-		modules: []modules.Module{
+		modules: []interfaces.Module{
 			&dev.Module{},
 			&core.Module{},
 			&extension.Module{},
@@ -56,13 +56,13 @@ type SlackBot struct {
 	handlers     []HandlerTuple
 	imHandlers   []HandlerTuple
 
-	modules []modules.Module
+	modules []interfaces.Module
 }
 
 // HandlerTuple a tuples of a pattern and a handler.
 type HandlerTuple struct {
 	Pattern *regexp.Regexp
-	Handler modules.Handler
+	Handler interfaces.Handler
 }
 
 func (b *SlackBot) mentionRegex(contents string) *regexp.Regexp {
@@ -204,7 +204,7 @@ func (b *SlackBot) PostImage(
 }
 
 // GetModules returns the modules used in this bot.
-func (b *SlackBot) GetModules() []modules.Module {
+func (b *SlackBot) GetModules() []interfaces.Module {
 	return b.modules
 }
 
