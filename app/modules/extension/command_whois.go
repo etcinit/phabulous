@@ -7,8 +7,8 @@ import (
 	gonduitRequests "github.com/etcinit/gonduit/requests"
 	"github.com/etcinit/phabulous/app/gonduit/extensions"
 	"github.com/etcinit/phabulous/app/gonduit/extensions/requests"
+	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
-	"github.com/etcinit/phabulous/app/modules"
 	"github.com/nlopes/slack"
 )
 
@@ -41,8 +41,8 @@ func (t *WhoisCommand) GetMentionMatchers() []string {
 }
 
 // GetHandler returns the handler for this command.
-func (t *WhoisCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, m messages.Message, matches []string) {
+func (t *WhoisCommand) GetHandler() interfaces.Handler {
+	return func(s interfaces.Bot, m messages.Message, matches []string) {
 		s.StartTyping(m.GetChannel())
 
 		conn, err := s.GetGonduit()
@@ -51,7 +51,7 @@ func (t *WhoisCommand) GetHandler() modules.Handler {
 			return
 		}
 
-		if sb, ok := s.(modules.SlackService); ok {
+		if sb, ok := s.(interfaces.SlackBot); ok {
 			slack := sb.GetSlack()
 
 			if matches[1] == "slack" {
@@ -71,7 +71,7 @@ func (t *WhoisCommand) GetHandler() modules.Handler {
 }
 
 func toSlack(
-	s modules.Service,
+	s interfaces.Bot,
 	client *slack.Client,
 	conn *gonduit.Conn,
 	m messages.Message,
@@ -156,7 +156,7 @@ func toSlack(
 }
 
 func fromSlack(
-	s modules.Service,
+	s interfaces.Bot,
 	client *slack.Client,
 	conn *gonduit.Conn,
 	m messages.Message,

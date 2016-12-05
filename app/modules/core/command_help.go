@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
-	"github.com/etcinit/phabulous/app/modules"
 )
 
 // HelpCommand allows one to send test messages to the feed channel.
@@ -37,8 +37,8 @@ func (c *HelpCommand) GetMentionMatchers() []string {
 }
 
 // GetHandler returns the handler for this command.
-func (c *HelpCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, m messages.Message, matches []string) {
+func (c *HelpCommand) GetHandler() interfaces.Handler {
+	return func(s interfaces.Bot, m messages.Message, matches []string) {
 		message := "Available commands:\n"
 
 		for _, module := range s.GetModules() {

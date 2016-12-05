@@ -1,6 +1,6 @@
 package core
 
-import "github.com/etcinit/phabulous/app/modules"
+import "github.com/etcinit/phabulous/app/interfaces"
 
 // Module provides development/debugging commands.
 type Module struct{}
@@ -11,8 +11,8 @@ func (m *Module) GetName() string {
 }
 
 // GetCommands returns the commands provided by this module.
-func (m *Module) GetCommands() []modules.Command {
-	return []modules.Command{
+func (m *Module) GetCommands() []interfaces.Command {
+	return []interfaces.Command{
 		&LookupCommand{},
 		&SummonCommand{},
 		&MemeCommand{},

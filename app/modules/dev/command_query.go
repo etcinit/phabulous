@@ -3,8 +3,8 @@ package dev
 import (
 	"fmt"
 
+	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
-	"github.com/etcinit/phabulous/app/modules"
 )
 
 // QueryCommand allows one to send test messages to the feed channel.
@@ -36,8 +36,8 @@ func (t *QueryCommand) GetMentionMatchers() []string {
 }
 
 // GetHandler returns the handler for this command.
-func (t *QueryCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, m messages.Message, matches []string) {
+func (t *QueryCommand) GetHandler() interfaces.Handler {
+	return func(s interfaces.Bot, m messages.Message, matches []string) {
 		conn, err := s.GetGonduit()
 		if err != nil {
 			s.Excuse(m, err)

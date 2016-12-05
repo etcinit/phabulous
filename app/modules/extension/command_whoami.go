@@ -6,8 +6,8 @@ import (
 	gonduitRequests "github.com/etcinit/gonduit/requests"
 	"github.com/etcinit/phabulous/app/gonduit/extensions"
 	"github.com/etcinit/phabulous/app/gonduit/extensions/requests"
+	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
-	"github.com/etcinit/phabulous/app/modules"
 )
 
 // WhoamiCommand allows one to send test messages to the feed channel.
@@ -39,8 +39,8 @@ func (t *WhoamiCommand) GetMentionMatchers() []string {
 }
 
 // GetHandler returns the handler for this command.
-func (t *WhoamiCommand) GetHandler() modules.Handler {
-	return func(s modules.Service, m messages.Message, matches []string) {
+func (t *WhoamiCommand) GetHandler() interfaces.Handler {
+	return func(s interfaces.Bot, m messages.Message, matches []string) {
 		conn, err := s.GetGonduit()
 		if err != nil {
 			s.Excuse(m, err)
