@@ -22,7 +22,7 @@ type Bot interface {
 		icon messages.Icon,
 		asUser bool,
 	)
-	PostOnFeed(string)
+	PostOnFeed(string) error
 	StartTyping(string)
 	GetUsername(string) (string, error)
 	Excuse(messages.Message, error)

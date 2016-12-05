@@ -1,11 +1,10 @@
-package bot
+package connectors
 
 import (
 	"math/rand"
 	"regexp"
 
 	"github.com/etcinit/gonduit"
-	"github.com/etcinit/phabulous/app/factories"
 	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
 	"github.com/etcinit/phabulous/app/modules/core"
@@ -16,47 +15,23 @@ import (
 )
 
 // NewBot creates a new instance of a Bot.
-func NewSlackBot(
-	slacker *SlackService,
-	slackRTM *slack.RTM,
-	slackInfo *slack.Info,
-) *SlackBot {
-	bot := &SlackBot{
-		Slacker:      slacker,
-		slackInfo:    slackInfo,
-		slackRTM:     slackRTM,
-		imChannelIDs: map[string]bool{},
-		modules: []interfaces.Module{
-			&dev.Module{},
-			&core.Module{},
-			&extension.Module{},
-		},
+func (c *SlackConnector) setupRTM(slackRTM *slack.RTM, slackInfo *slack.Info) {
+	c.slackInfo = slackInfo
+	c.slackRTM = slackRTM
+	c.imChannelIDs = map[string]bool{}
+	c.modules = []interfaces.Module{
+		&dev.Module{},
+		&core.Module{},
+		&extension.Module{},
 	}
 
 	// Make it easy to lookup if a channel is an IM channel.
 	for _, im := range slackInfo.IMs {
-		bot.imChannelIDs[im.ID] = true
+		c.imChannelIDs[im.ID] = true
 	}
 
 	// Load message handlers
-	bot.loadHandlers()
-
-	return bot
-}
-
-// SlackBot represents the state of the bot. It also contains functions
-// related to the interactive portion of Phabulous.
-type SlackBot struct {
-	Slacker *SlackService
-	Factory *factories.GonduitFactory
-
-	slackInfo    *slack.Info
-	slackRTM     *slack.RTM
-	imChannelIDs map[string]bool
-	handlers     []HandlerTuple
-	imHandlers   []HandlerTuple
-
-	modules []interfaces.Module
+	c.loadHandlers()
 }
 
 // HandlerTuple a tuples of a pattern and a handler.
@@ -65,13 +40,13 @@ type HandlerTuple struct {
 	Handler interfaces.Handler
 }
 
-func (b *SlackBot) mentionRegex(contents string) *regexp.Regexp {
+func (b *SlackConnector) mentionRegex(contents string) *regexp.Regexp {
 	username := b.slackInfo.User.ID
 
 	return regexp.MustCompile("^<@" + username + ">:? " + contents + "$")
 }
 
-func (b *SlackBot) loadHandlers() {
+func (b *SlackConnector) loadHandlers() {
 	b.handlers = []HandlerTuple{}
 	b.imHandlers = []HandlerTuple{}
 
@@ -102,11 +77,11 @@ func (b *SlackBot) loadHandlers() {
 }
 
 // Excuse comes up with an excuse of why something failed.
-func (b *SlackBot) Excuse(m messages.Message, err error) {
-	b.Slacker.Logger.Error(err)
+func (c *SlackConnector) Excuse(m messages.Message, err error) {
+	c.logger.Error(err)
 
-	if b.Slacker.Config.GetBool("server.serious") {
-		b.Slacker.SimplePost(
+	if c.config.GetBool("server.serious") {
+		c.Post(
 			m.GetChannel(),
 			"An error ocurred and I was unable to fulfill your request.",
 			messages.IconDefault,
@@ -129,7 +104,7 @@ func (b *SlackBot) Excuse(m messages.Message, err error) {
 		"A cat is walking over my keywpdfahsgasgdadfk kj h",
 	}
 
-	b.Slacker.SimplePost(
+	c.Post(
 		m.GetChannel(),
 		excuses[rand.Intn(len(excuses))],
 		messages.IconDefault,
@@ -138,25 +113,25 @@ func (b *SlackBot) Excuse(m messages.Message, err error) {
 }
 
 // ProcessIMOpen handles IM open events.
-func (b *SlackBot) ProcessIMOpen(ev *slack.IMOpenEvent) {
-	b.imChannelIDs[ev.Channel] = true
+func (c *SlackConnector) processIMOpen(ev *slack.IMOpenEvent) {
+	c.imChannelIDs[ev.Channel] = true
 }
 
 // ProcessMessage processes incoming messages events and calls the appropriate
 // handlers.
-func (b *SlackBot) ProcessMessage(ev *slack.MessageEvent) {
+func (c *SlackConnector) processMessage(ev *slack.MessageEvent) {
 	// Ignore messages from the bot itself.
-	if ev.User == b.slackInfo.User.ID {
+	if ev.User == c.slackInfo.User.ID {
 		return
 	}
 
 	// If the message is an IM, use IM handlers.
-	if _, ok := b.imChannelIDs[ev.Channel]; ok {
+	if _, ok := c.imChannelIDs[ev.Channel]; ok {
 		handled := false
 
-		for _, tuple := range b.imHandlers {
+		for _, tuple := range c.imHandlers {
 			if result := tuple.Pattern.FindStringSubmatch(ev.Text); result != nil {
-				go tuple.Handler(b, messages.NewSlackMessage(ev), result)
+				go tuple.Handler(c, messages.NewSlackMessage(ev), result)
 
 				handled = true
 			}
@@ -164,72 +139,46 @@ func (b *SlackBot) ProcessMessage(ev *slack.MessageEvent) {
 
 		// On an IM, we will show a small help message if no handlers are found.
 		if handled == false {
-			go b.HandleUsage(messages.NewSlackMessage(ev), []string{})
+			go c.HandleUsage(messages.NewSlackMessage(ev), []string{})
 		}
 
 		return
 	}
 
-	for _, tuple := range b.handlers {
+	for _, tuple := range c.handlers {
 		if result := tuple.Pattern.FindStringSubmatch(ev.Text); result != nil {
-			go tuple.Handler(b, messages.NewSlackMessage(ev), result)
+			go tuple.Handler(c, messages.NewSlackMessage(ev), result)
 		}
 	}
 }
 
-// PostOnFeed posts a message on the feed.
-func (b *SlackBot) PostOnFeed(message string) {
-	b.Slacker.FeedPost(message)
-}
-
-// Post posts a simple messsage to the a channel.
-func (b *SlackBot) Post(
-	channel string,
-	message string,
-	icon messages.Icon,
-	asUser bool,
-) {
-	b.Slacker.SimplePost(channel, message, icon, asUser)
-}
-
-// PostImage posts a simple message with an image to the channel.
-func (b *SlackBot) PostImage(
-	channel string,
-	message string,
-	imageURL string,
-	icon messages.Icon,
-	asUser bool,
-) {
-	b.Slacker.SimpleImagePost(channel, message, imageURL, icon, asUser)
-}
-
 // GetModules returns the modules used in this bot.
-func (b *SlackBot) GetModules() []interfaces.Module {
+func (b *SlackConnector) GetModules() []interfaces.Module {
 	return b.modules
 }
 
 // StartTyping notify Slack that the bot is "typing".
-func (b *SlackBot) StartTyping(channel string) {
+func (b *SlackConnector) StartTyping(channel string) {
 	b.slackRTM.SendMessage(b.slackRTM.NewTypingMessage(channel))
 }
 
 // GetGonduit gets an instance of a gonduit client.
-func (b *SlackBot) GetGonduit() (*gonduit.Conn, error) {
-	return b.Slacker.Factory.Make()
+func (c *SlackConnector) GetGonduit() (*gonduit.Conn, error) {
+	return c.gonduitFactory.Make()
 }
 
 // GetConfig returns an instance of the configuration store.
-func (b *SlackBot) GetConfig() *confer.Config {
-	return b.Slacker.Config
+func (c *SlackConnector) GetConfig() *confer.Config {
+	return c.config
 }
 
-func (b *SlackBot) GetSlack() *slack.Client {
-	return b.Slacker.Slack
+func (c *SlackConnector) GetSlack() *slack.Client {
+	return c.slack
 }
 
 // HandleUsage shows usage tip.
-func (b *SlackBot) HandleUsage(m messages.Message, matches []string) {
-	b.Slacker.SimplePost(
+func (c *SlackConnector) HandleUsage(m messages.Message, matches []string) {
+	c.Post(
 		m.GetChannel(),
 		"Hi. For usage information, type `help`.",
 		messages.IconTasks,
@@ -237,8 +186,8 @@ func (b *SlackBot) HandleUsage(m messages.Message, matches []string) {
 	)
 }
 
-func (b *SlackBot) GetUsername(userId string) (string, error) {
-	userInfo, err := b.GetSlack().GetUserInfo(userId)
+func (c *SlackConnector) GetUsername(userId string) (string, error) {
+	userInfo, err := c.slack.GetUserInfo(userId)
 	if err != nil {
 		return "", err
 	}
