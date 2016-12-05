@@ -14,15 +14,7 @@ import (
 // networks and services.
 //
 type Bot interface {
-	Post(string, string, messages.Icon, bool)
-	PostImage(
-		channelName string,
-		storyText string,
-		imageURL string,
-		icon messages.Icon,
-		asUser bool,
-	)
-	PostOnFeed(string) error
+	Poster
 	StartTyping(string)
 	GetUsername(string) (string, error)
 	Excuse(messages.Message, error)

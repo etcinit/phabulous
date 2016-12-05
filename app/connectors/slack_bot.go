@@ -7,9 +7,6 @@ import (
 	"github.com/etcinit/gonduit"
 	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
-	"github.com/etcinit/phabulous/app/modules/core"
-	"github.com/etcinit/phabulous/app/modules/dev"
-	"github.com/etcinit/phabulous/app/modules/extension"
 	"github.com/jacobstr/confer"
 	"github.com/nlopes/slack"
 )
@@ -19,19 +16,23 @@ func (c *SlackConnector) setupRTM(slackRTM *slack.RTM, slackInfo *slack.Info) {
 	c.slackInfo = slackInfo
 	c.slackRTM = slackRTM
 	c.imChannelIDs = map[string]bool{}
-	c.modules = []interfaces.Module{
-		&dev.Module{},
-		&core.Module{},
-		&extension.Module{},
-	}
 
 	// Make it easy to lookup if a channel is an IM channel.
 	for _, im := range slackInfo.IMs {
 		c.imChannelIDs[im.ID] = true
 	}
 
-	// Load message handlers
+	// Reload handlers
 	c.loadHandlers()
+}
+
+func (c *SlackConnector) LoadModules(modules []interfaces.Module) {
+	c.modules = modules
+
+	// Reload handlers
+	if c.slackRTM != nil {
+		c.loadHandlers()
+	}
 }
 
 // HandlerTuple a tuples of a pattern and a handler.
