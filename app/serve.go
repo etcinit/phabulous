@@ -5,17 +5,15 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
-	"github.com/etcinit/phabulous/app/bot"
 	"github.com/jacobstr/confer"
 )
 
 // ServeService provides the serve command
 type ServeService struct {
-	Engine  *EngineService    `inject:""`
-	Config  *confer.Config    `inject:""`
-	Logger  *logrus.Logger    `inject:""`
-	Slacker *bot.SlackService `inject:""`
-	App     *Phabulous        `inject:""`
+	Engine *EngineService `inject:""`
+	Config *confer.Config `inject:""`
+	Logger *logrus.Logger `inject:""`
+	App    *Phabulous     `inject:""`
 }
 
 // Run starts up the HTTP server
@@ -27,7 +25,9 @@ func (s *ServeService) Run(c *cli.Context) {
 
 	engine := s.Engine.New()
 
-	go s.Slacker.BootRTM()
+	s.Engine.Feed.SlackConnector = s.App.SlackConnector
+
+	go s.App.SlackConnector.Boot()
 
 	// Try to use the hostname specified on the configuration.
 	hostname := ""
