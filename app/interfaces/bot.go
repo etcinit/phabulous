@@ -24,6 +24,11 @@ type Bot interface {
 	//
 	GetUsername(userID string) (string, error)
 
+	// StartTyping will cause the bot to show a typing indicator
+	// ("X is typing...") if the network supports it. Otherwise, it will simply
+	// ignore it.
+	StartTyping(channelID string)
+
 	// Excuse can be used as an error reporter by commands. It posts to the
 	// channel a message was received from that an error ocurred and logs the
 	// error using the application logger.
