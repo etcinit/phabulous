@@ -65,7 +65,7 @@ func (b *Bot) HandleSummon(ev *slack.MessageEvent, matches []string) {
 		return
 	}
 
-	reviewerNames := []string{}
+	reviewerMap := map[string]bool{}
 
 	for _, reviewerPHID := range (*res)[0].Reviewers {
 		nameRes, err := conn.PHIDQuerySingle(reviewerPHID)
@@ -74,13 +74,40 @@ func (b *Bot) HandleSummon(ev *slack.MessageEvent, matches []string) {
 			return
 		}
 
-		reviewerNames = append(reviewerNames, "@"+(*nameRes).Name)
+		if (*nameRes).Type == "PROJ" {
+			res, err := conn.ProjectQuery(requests.ProjectQueryRequest{
+				PHIDs: []string{reviewerPHID},
+			})
+			if err != nil {
+				b.Excuse(ev, err)
+				return
+			}
+			if proj, ok := res.Data[reviewerPHID]; ok {
+				res, err := conn.PHIDQuery(requests.PHIDQueryRequest{
+					PHIDs: proj.Members,
+				})
+				if err != nil {
+					b.Excuse(ev, err)
+					return
+				}
+				for _, member := range res {
+					reviewerMap["@"+member.Name] = true
+				}
+			}
+		} else {
+			reviewerMap["@"+(*nameRes).Name] = true
+		}
 	}
 
 	userInfo, err := b.slackRTM.GetUserInfo(ev.User)
 	if err != nil {
 		b.Excuse(ev, err)
 		return
+	}
+
+	reviewerNames := []string{}
+	for name := range reviewerMap {
+		reviewerNames = append(reviewerNames, name)
 	}
 
 	b.Slacker.SimplePost(
