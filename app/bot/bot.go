@@ -49,14 +49,14 @@ type Bot struct {
 func (b *Bot) mentionRegex(contents string) *regexp.Regexp {
 	username := b.slackInfo.User.ID
 
-	return regexp.MustCompile("^<@" + username + ">:? " + contents + "$")
+	return regexp.MustCompile("^<@" + username + ">:?\\s+" + contents + "$")
 }
 
 func (b *Bot) loadHandlers() {
 	b.handlers = map[*regexp.Regexp]func(*slack.MessageEvent, []string){}
 	b.imHandlers = map[*regexp.Regexp]func(*slack.MessageEvent, []string){}
 
-	b.imHandlers[regexp.MustCompile("^lookup ([T|D][0-9]{1,16})$")] =
+	b.imHandlers[regexp.MustCompile("^lookup\\s+([T|D][0-9]{1,16})$")] =
 		b.HandleLookup
 	b.imHandlers[regexp.MustCompile("^([T|D][0-9]{1,16})$")] =
 		b.HandleLookup
@@ -65,14 +65,14 @@ func (b *Bot) loadHandlers() {
 	b.imHandlers[regexp.MustCompile("dev:post:feed:test")] =
 		b.HandleTestFeedMessage
 
-	b.handlers[b.mentionRegex("summon D([0-9]{1,16})")] =
+	b.handlers[b.mentionRegex("summon\\s+D([0-9]{1,16})")] =
 		b.HandleSummon
 	b.handlers[b.mentionRegex("help")] = b.HandleHelp
 	b.handlers[b.mentionRegex("([T|D][0-9]{1,16})")] = b.HandleLookup
-	b.handlers[b.mentionRegex("lookup ([T|D][0-9]{1,16})")] = b.HandleLookup
+	b.handlers[b.mentionRegex("lookup\\s+([T|D][0-9]{1,16})")] = b.HandleLookup
 	b.handlers[regexp.MustCompile("^([T|D][0-9]{1,16})$")] = b.HandleLookup
 	b.handlers[regexp.MustCompile(
-		"meme ([^ ]{1,128}) \"(.{1,128})\" \"(.{1,128})\"$",
+		"meme\\+([^ ]{1,128})\\s+\"(.{1,128})\"\\s+\"(.{1,128})\"$",
 	)] = b.HandleCreateMeme
 }
 
