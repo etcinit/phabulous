@@ -65,6 +65,7 @@ func (b *Bot) HandleSummon(ev *slack.MessageEvent, matches []string) {
 		return
 	}
 
+	authorPHID := (*res)[0].AuthorPHID
 	reviewerMap := map[string]bool{}
 
 	for _, reviewerPHID := range (*res)[0].Reviewers {
@@ -91,7 +92,9 @@ func (b *Bot) HandleSummon(ev *slack.MessageEvent, matches []string) {
 					return
 				}
 				for _, member := range res {
-					reviewerMap["@"+member.Name] = true
+					if member.PHID != authorPHID {
+						reviewerMap["@"+member.Name] = true
+					}
 				}
 			}
 		} else {
