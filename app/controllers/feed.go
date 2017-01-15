@@ -3,8 +3,8 @@ package controllers
 import (
 	"github.com/Sirupsen/logrus"
 	"github.com/etcinit/gonduit/constants"
-	"github.com/etcinit/phabulous/app/connectors"
 	"github.com/etcinit/phabulous/app/factories"
+	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
 	"github.com/etcinit/phabulous/app/resolvers"
 	"github.com/gin-gonic/gin"
@@ -20,7 +20,7 @@ type FeedController struct {
 	Differential *resolvers.DifferentialResolver `inject:""`
 	Logger       *logrus.Logger                  `inject:""`
 
-	SlackConnector *connectors.SlackConnector
+	Connector interfaces.Connector
 }
 
 // Register registers the route handlers for this controller
@@ -60,7 +60,7 @@ func (f *FeedController) postReceive(c *gin.Context) {
 	phidType := constants.PhidType(res.Type)
 	icon := messages.PhidTypeToIcon(phidType)
 
-	f.SlackConnector.PostOnFeed(storyText)
+	f.Connector.PostOnFeed(storyText)
 
 	switch phidType {
 	case constants.PhidTypeCommit:
@@ -70,14 +70,14 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		}
 
 		if channelName != "" {
-			f.SlackConnector.Post(channelName, storyText, icon, false)
+			f.Connector.Post(channelName, storyText, icon, false)
 		}
 
 		// Support "all" channel.
 		channelMap := f.Config.GetStringMapString("channels.repositories")
 
 		if channelName, ok := channelMap["all"]; ok == true {
-			f.SlackConnector.Post(channelName, storyText, icon, false)
+			f.Connector.Post(channelName, storyText, icon, false)
 		}
 		break
 	case constants.PhidTypeTask:
@@ -87,7 +87,7 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		}
 
 		if channelName != "" {
-			f.SlackConnector.Post(channelName, storyText, icon, false)
+			f.Connector.Post(channelName, storyText, icon, false)
 		}
 		break
 	case constants.PhidTypeDifferentialRevision:
@@ -97,14 +97,14 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		}
 
 		if channelName != "" {
-			f.SlackConnector.Post(channelName, storyText, icon, false)
+			f.Connector.Post(channelName, storyText, icon, false)
 		}
 
 		// Support "all" channel.
 		channelMap := f.Config.GetStringMapString("channels.repositories")
 
 		if channelName, ok := channelMap["all"]; ok == true {
-			f.SlackConnector.Post(channelName, storyText, icon, false)
+			f.Connector.Post(channelName, storyText, icon, false)
 		}
 		break
 	}

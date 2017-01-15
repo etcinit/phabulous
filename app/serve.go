@@ -16,18 +16,29 @@ type ServeService struct {
 	App    *Phabulous     `inject:""`
 }
 
-// Run starts up the HTTP server
+// Run boots the application and starts up the API server.
 func (s *ServeService) Run(c *cli.Context) {
 	// Boot the upper layers of the app.
 	s.App.Boot(c)
 
-	s.Logger.Infoln("Starting up the server... (a.k.a. coffee time)")
+	// We pass down the connector manager as the feed's connector. This will
+	// allow it to post to all services the bot is configured to use.
+	s.Engine.Feed.Connector = s.App.ConnectorManager
+
+	// Finally, we boot the connector manager.
+	s.App.ConnectorManager.Boot()
+
+	// Start the API server so we can receive feed events.
+	s.runServer()
+
+	s.Logger.Infoln("✔︎ Done!")
+}
+
+// runServer sets up the HTTP server and begins listening.
+func (s *ServeService) runServer() {
+	s.Logger.Infoln("Starting up the API server...")
 
 	engine := s.Engine.New()
-
-	s.Engine.Feed.SlackConnector = s.App.SlackConnector
-
-	go s.App.SlackConnector.Boot()
 
 	// Try to use the hostname specified on the configuration.
 	hostname := ""
@@ -38,7 +49,7 @@ func (s *ServeService) Run(c *cli.Context) {
 	// Figure out which port to use.
 	hostname = hostname + ":" + strconv.Itoa(s.Config.GetInt("server.port"))
 
-	engine.Run(hostname)
+	s.Logger.Debugf("API Server Hostname: %s", hostname)
 
-	s.Logger.Infoln("✔︎ Done!")
+	engine.Run(hostname)
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/etcinit/phabulous/app/factories"
 	"github.com/etcinit/phabulous/app/interfaces"
+	"github.com/etcinit/phabulous/app/modules"
 	"github.com/jacobstr/confer"
 	"github.com/nlopes/slack"
 )
@@ -37,8 +38,8 @@ type SlackConnector struct {
 	slackInfo    *slack.Info
 	slackRTM     *slack.RTM
 	imChannelIDs map[string]bool
-	handlers     []HandlerTuple
-	imHandlers   []HandlerTuple
+	handlers     []modules.HandlerTuple
+	imHandlers   []modules.HandlerTuple
 
 	modules []interfaces.Module
 }
@@ -49,7 +50,12 @@ func (c *SlackConnector) Boot() error {
 
 	rtm := c.slack.NewRTM()
 	go rtm.ManageConnection()
+	go c.rtmLoop(rtm)
 
+	return nil
+}
+
+func (c *SlackConnector) rtmLoop(rtm *slack.RTM) {
 Loop:
 	for {
 		select {
@@ -108,6 +114,4 @@ Loop:
 	}
 
 	c.logger.Warnln("RTM handler has stopped.")
-
-	return nil
 }

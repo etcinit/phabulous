@@ -1,17 +1,16 @@
 package connectors
 
 import (
-	"math/rand"
 	"regexp"
 
 	"github.com/etcinit/gonduit"
 	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
+	"github.com/etcinit/phabulous/app/modules"
 	"github.com/jacobstr/confer"
 	"github.com/nlopes/slack"
 )
 
-// NewBot creates a new instance of a Bot.
 func (c *SlackConnector) setupRTM(slackRTM *slack.RTM, slackInfo *slack.Info) {
 	c.slackInfo = slackInfo
 	c.slackRTM = slackRTM
@@ -35,79 +34,33 @@ func (c *SlackConnector) LoadModules(modules []interfaces.Module) {
 	}
 }
 
-// HandlerTuple a tuples of a pattern and a handler.
-type HandlerTuple struct {
-	Pattern *regexp.Regexp
-	Handler interfaces.Handler
-}
+func (b *SlackConnector) regexBuilder(
+	matcherType modules.MatcherType,
+	pattern string,
+) *regexp.Regexp {
+	if matcherType != modules.MentionMatcherType {
+		return regexp.MustCompile(pattern)
+	}
 
-func (b *SlackConnector) mentionRegex(contents string) *regexp.Regexp {
 	username := b.slackInfo.User.ID
 
-	return regexp.MustCompile("^<@" + username + ">:? " + contents + "$")
+	return regexp.MustCompile("^<@" + username + ">:? " + pattern + "$")
 }
 
 func (b *SlackConnector) loadHandlers() {
-	b.handlers = []HandlerTuple{}
-	b.imHandlers = []HandlerTuple{}
-
-	for _, module := range b.modules {
-		for _, command := range module.GetCommands() {
-			for _, rgx := range command.GetMatchers() {
-				b.handlers = append(b.handlers, HandlerTuple{
-					Pattern: regexp.MustCompile(rgx),
-					Handler: command.GetHandler(),
-				})
-			}
-
-			for _, rgx := range command.GetIMMatchers() {
-				b.imHandlers = append(b.imHandlers, HandlerTuple{
-					Pattern: regexp.MustCompile(rgx),
-					Handler: command.GetHandler(),
-				})
-			}
-
-			for _, rgx := range command.GetMentionMatchers() {
-				b.handlers = append(b.handlers, HandlerTuple{
-					Pattern: b.mentionRegex(rgx),
-					Handler: command.GetHandler(),
-				})
-			}
-		}
-	}
+	b.handlers, b.imHandlers = modules.CompileHandlers(
+		b.modules,
+		b.regexBuilder,
+	)
 }
 
 // Excuse comes up with an excuse of why something failed.
 func (c *SlackConnector) Excuse(m messages.Message, err error) {
 	c.logger.Error(err)
 
-	if c.config.GetBool("server.serious") {
-		c.Post(
-			m.GetChannel(),
-			"An error ocurred and I was unable to fulfill your request.",
-			messages.IconDefault,
-			true,
-		)
-
-		return
-	}
-
-	excuses := []string{
-		"There is some interference right now and I can't fulfill your request.",
-		"Oh noes. I messed up.",
-		"Whoops. Something went wrong.",
-		"1000s lines of code and I still cant get some things right.",
-		"[explodes]",
-		"Error: WHY U NO WORK?!",
-		"OMG! It failed.",
-		"such failure. such request.",
-		"Oops I did it again...",
-		"A cat is walking over my keywpdfahsgasgdadfk kj h",
-	}
-
 	c.Post(
 		m.GetChannel(),
-		excuses[rand.Intn(len(excuses))],
+		messages.GetExcuse(c.config),
 		messages.IconDefault,
 		true,
 	)
