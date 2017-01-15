@@ -41,6 +41,17 @@ func (t *WhoamiCommand) GetMentionMatchers() []string {
 // GetHandler returns the handler for this command.
 func (t *WhoamiCommand) GetHandler() interfaces.Handler {
 	return func(s interfaces.Bot, m messages.Message, matches []string) {
+		if _, ok := s.(interfaces.SlackBot); !ok {
+			s.Post(
+				m.GetChannel(),
+				"This command only works over Slack",
+				messages.IconTasks,
+				true,
+			)
+
+			return
+		}
+
 		conn, err := s.GetGonduit()
 		if err != nil {
 			s.Excuse(m, err)

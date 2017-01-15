@@ -122,25 +122,27 @@ func (c *SummonCommand) GetHandler() interfaces.Handler {
 		reviewerNames := []string{}
 
 		for _, reviewerPHID := range (*res)[0].Reviewers {
-			if slackUserInfo, ok := (*slackMap)[reviewerPHID]; ok {
-				var foundUser *slack.User
-				for _, user := range slackUsers {
-					if user.ID == slackUserInfo.AccountID {
-						foundUser = &user
-						break
+			if _, ok := s.(interfaces.SlackBot); ok {
+				if slackUserInfo, ok := (*slackMap)[reviewerPHID]; ok {
+					var foundUser *slack.User
+					for _, user := range slackUsers {
+						if user.ID == slackUserInfo.AccountID {
+							foundUser = &user
+							break
+						}
 					}
-				}
 
-				if foundUser != nil {
-					reviewerNames = append(
-						reviewerNames,
-						fmt.Sprintf(
-							"@%s :slack:",
-							foundUser.Name,
-						),
-					)
+					if foundUser != nil {
+						reviewerNames = append(
+							reviewerNames,
+							fmt.Sprintf(
+								"@%s :slack:",
+								foundUser.Name,
+							),
+						)
 
-					continue
+						continue
+					}
 				}
 			}
 
