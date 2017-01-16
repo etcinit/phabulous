@@ -37,7 +37,7 @@ func (t *QueryCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (t *QueryCommand) GetHandler() interfaces.Handler {
-	return func(s interfaces.Bot, m messages.Message, matches []string) {
+	return func(s interfaces.Bot, m interfaces.Message, matches []string) {
 		conn, err := s.GetGonduit()
 		if err != nil {
 			s.Excuse(m, err)

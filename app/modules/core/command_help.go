@@ -38,7 +38,7 @@ func (c *HelpCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (c *HelpCommand) GetHandler() interfaces.Handler {
-	return func(s interfaces.Bot, m messages.Message, matches []string) {
+	return func(s interfaces.Bot, m interfaces.Message, matches []string) {
 		message := "Available commands:\n"
 
 		for _, module := range s.GetModules() {

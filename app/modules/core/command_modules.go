@@ -37,7 +37,7 @@ func (c *ModulesCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (c *ModulesCommand) GetHandler() interfaces.Handler {
-	return func(s interfaces.Bot, m messages.Message, matches []string) {
+	return func(s interfaces.Bot, m interfaces.Message, matches []string) {
 		message := "Loaded modules:\n"
 
 		for _, module := range s.GetModules() {

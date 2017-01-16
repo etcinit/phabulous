@@ -48,7 +48,7 @@ func (c *SummonCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (c *SummonCommand) GetHandler() interfaces.Handler {
-	return func(s interfaces.Bot, m messages.Message, matches []string) {
+	return func(s interfaces.Bot, m interfaces.Message, matches []string) {
 		s.StartTyping(m.GetChannel())
 
 		if len(matches) < 2 {

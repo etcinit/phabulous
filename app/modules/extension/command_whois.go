@@ -42,7 +42,7 @@ func (t *WhoisCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (t *WhoisCommand) GetHandler() interfaces.Handler {
-	return func(s interfaces.Bot, m messages.Message, matches []string) {
+	return func(s interfaces.Bot, m interfaces.Message, matches []string) {
 		s.StartTyping(m.GetChannel())
 
 		conn, err := s.GetGonduit()
@@ -74,7 +74,7 @@ func toSlack(
 	s interfaces.Bot,
 	client *slack.Client,
 	conn *gonduit.Conn,
-	m messages.Message,
+	m interfaces.Message,
 	username string,
 ) {
 	users, err := conn.UserQuery(gonduitRequests.UserQueryRequest{
@@ -159,7 +159,7 @@ func fromSlack(
 	s interfaces.Bot,
 	client *slack.Client,
 	conn *gonduit.Conn,
-	m messages.Message,
+	m interfaces.Message,
 	username string,
 ) {
 	users, err := client.GetUsers()

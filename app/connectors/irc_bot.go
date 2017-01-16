@@ -11,6 +11,7 @@ import (
 	"github.com/jacobstr/confer"
 )
 
+// LoadModules instructs the connector to load the provided modules.
 func (c *IRCConnector) LoadModules(modules []interfaces.Module) {
 	c.modules = modules
 
@@ -19,65 +20,8 @@ func (c *IRCConnector) LoadModules(modules []interfaces.Module) {
 	}
 }
 
-// ProcessMessage processes incoming messages events and calls the appropriate
-// handlers.
-func (c *IRCConnector) processMessage(conn *client.Conn, line *client.Line) {
-	nick := c.client.Me().Nick
-
-	// Ignore messages from the bot itself.
-	if line.Nick == nick {
-		return
-	}
-
-	// If the message is an IM, use IM handlers.
-	if line.Target() == line.Nick {
-		handled := false
-
-		for _, tuple := range c.imHandlers {
-			if result := tuple.Pattern.FindStringSubmatch(line.Text()); result != nil {
-				go tuple.Handler(c, messages.NewIRCMessage(line), result)
-
-				handled = true
-			}
-		}
-
-		// On an IM, we will show a small help message if no handlers are found.
-		if handled == false {
-			go c.HandleUsage(messages.NewIRCMessage(line), []string{})
-		}
-
-		return
-	}
-
-	for _, tuple := range c.handlers {
-		if result := tuple.Pattern.FindStringSubmatch(line.Text()); result != nil {
-			go tuple.Handler(c, messages.NewIRCMessage(line), result)
-		}
-	}
-}
-
-func (c *IRCConnector) regexBuilder(
-	matcherType modules.MatcherType,
-	pattern string,
-) *regexp.Regexp {
-	if matcherType != modules.MentionMatcherType {
-		return regexp.MustCompile(pattern)
-	}
-
-	username := c.client.Me().Nick
-
-	return regexp.MustCompile("^@" + username + ":? " + pattern + "$")
-}
-
-func (c *IRCConnector) loadHandlers() {
-	c.handlers, c.imHandlers = modules.CompileHandlers(
-		c.modules,
-		c.regexBuilder,
-	)
-}
-
 // Excuse comes up with an excuse of why something failed.
-func (c *IRCConnector) Excuse(m messages.Message, err error) {
+func (c *IRCConnector) Excuse(m interfaces.Message, err error) {
 	c.logger.Error(err)
 
 	c.Post(
@@ -86,6 +30,16 @@ func (c *IRCConnector) Excuse(m messages.Message, err error) {
 		messages.IconDefault,
 		true,
 	)
+}
+
+// GetHandlers returns the regular handlers loaded in this connector.
+func (c *IRCConnector) GetHandlers() []interfaces.HandlerTuple {
+	return c.handlers
+}
+
+// GetIMHandlers returns the IM handlers loaded in this connector.
+func (c *IRCConnector) GetIMHandlers() []interfaces.HandlerTuple {
+	return c.imHandlers
 }
 
 // GetGonduit gets an instance of a gonduit client.
@@ -103,8 +57,16 @@ func (b *IRCConnector) GetModules() []interfaces.Module {
 	return b.modules
 }
 
+// GetUsername returns the username of the user specified.
+//
+// Since the IRC connector uses usernames as user IDs, this method is just
+// an identity function.
+func (c *IRCConnector) GetUsername(userId string) (string, error) {
+	return userId, nil
+}
+
 // HandleUsage shows usage tip.
-func (c *IRCConnector) HandleUsage(m messages.Message, matches []string) {
+func (c *IRCConnector) HandleUsage(m interfaces.Message, matches []string) {
 	c.Post(
 		m.GetChannel(),
 		"Hi. For usage information, type `help`.",
@@ -113,9 +75,42 @@ func (c *IRCConnector) HandleUsage(m messages.Message, matches []string) {
 	)
 }
 
-func (c *IRCConnector) GetUsername(userId string) (string, error) {
-	return userId, nil
+// StartTyping notifies the network that the bot is typing.
+//
+// The IRC protocol does not provide this feature, so include a dummy method to
+// satisfy the interface.
+func (b *IRCConnector) StartTyping(channel string) {}
+
+// processMessage processes incoming messages events and calls the appropriate
+// handlers.
+func (c *IRCConnector) processMessage(conn *client.Conn, line *client.Line) {
+	nick := c.client.Me().Nick
+
+	message := NewIRCMessage(line, nick)
+
+	processMessage(c, message)
 }
 
-// StartTyping notify Slack that the bot is "typing".
-func (b *IRCConnector) StartTyping(channel string) {}
+// regexBuilder takes the type of a matcher and its pattern and builds a
+// regular expression.
+func (c *IRCConnector) regexBuilder(
+	matcherType modules.MatcherType,
+	pattern string,
+) *regexp.Regexp {
+	if matcherType != modules.MentionMatcherType {
+		return regexp.MustCompile(pattern)
+	}
+
+	username := c.client.Me().Nick
+
+	return regexp.MustCompile("^@" + username + ":? " + pattern + "$")
+}
+
+// loadHandlers uses the handler compiler to load all the handlers into two
+// internal groups.
+func (c *IRCConnector) loadHandlers() {
+	c.handlers, c.imHandlers = modules.CompileHandlers(
+		c.modules,
+		c.regexBuilder,
+	)
+}

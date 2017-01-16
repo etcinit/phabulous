@@ -2,7 +2,6 @@ package interfaces
 
 import (
 	"github.com/etcinit/gonduit"
-	"github.com/etcinit/phabulous/app/messages"
 	"github.com/jacobstr/confer"
 	"github.com/nlopes/slack"
 )
@@ -29,10 +28,14 @@ type Bot interface {
 	// ignore it.
 	StartTyping(channelID string)
 
+	// HandleUsage executes a command usually shown when no other command is
+	// matched.
+	HandleUsage(m Message, matches []string)
+
 	// Excuse can be used as an error reporter by commands. It posts to the
 	// channel a message was received from that an error ocurred and logs the
 	// error using the application logger.
-	Excuse(messages.Message, error)
+	Excuse(Message, error)
 
 	// GetGonduit returns an instance of the Conduit client.
 	GetGonduit() (*gonduit.Conn, error)
@@ -42,6 +45,12 @@ type Bot interface {
 
 	// GetModules returns a slice of all the modules loaded by this Bot.
 	GetModules() []Module
+
+	// GetHandlers returns the currently active handlers on the connector.
+	GetHandlers() []HandlerTuple
+
+	// GetIMHandlers returns the currently active IM handlers on the connector.
+	GetIMHandlers() []HandlerTuple
 }
 
 // A SlackBot is just like a Bot, but it also provides access to the Slack API.

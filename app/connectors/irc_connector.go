@@ -8,7 +8,6 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/etcinit/phabulous/app/factories"
 	"github.com/etcinit/phabulous/app/interfaces"
-	"github.com/etcinit/phabulous/app/modules"
 	irc "github.com/fluffle/goirc/client"
 	"github.com/jacobstr/confer"
 )
@@ -18,8 +17,8 @@ type IRCConnector struct {
 	gonduitFactory *factories.GonduitFactory
 	logger         *logrus.Logger
 
-	handlers   []modules.HandlerTuple
-	imHandlers []modules.HandlerTuple
+	handlers   []interfaces.HandlerTuple
+	imHandlers []interfaces.HandlerTuple
 	modules    []interfaces.Module
 
 	client *irc.Conn
