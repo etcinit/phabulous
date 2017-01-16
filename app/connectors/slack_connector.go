@@ -4,7 +4,6 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/etcinit/phabulous/app/factories"
 	"github.com/etcinit/phabulous/app/interfaces"
-	"github.com/etcinit/phabulous/app/modules"
 	"github.com/jacobstr/confer"
 	"github.com/nlopes/slack"
 )
@@ -38,8 +37,8 @@ type SlackConnector struct {
 	slackInfo    *slack.Info
 	slackRTM     *slack.RTM
 	imChannelIDs map[string]bool
-	handlers     []modules.HandlerTuple
-	imHandlers   []modules.HandlerTuple
+	handlers     []interfaces.HandlerTuple
+	imHandlers   []interfaces.HandlerTuple
 
 	modules []interfaces.Module
 }

@@ -1,6 +1,6 @@
 package interfaces
 
-import "github.com/etcinit/phabulous/app/messages"
+import "regexp"
 
 // A Module provides a set of commands.
 type Module interface {
@@ -38,4 +38,12 @@ type Command interface {
 }
 
 // A Handler handles messages.
-type Handler func(Bot, messages.Message, []string)
+type Handler func(Bot, Message, []string)
+
+// A HandlerTuple is a tuple of a pattern and a handler.
+type HandlerTuple interface {
+	// GetPattern returns the regular expression pattern in the tuple.
+	GetPattern() *regexp.Regexp
+	// GetHandler returns the Handler in the tuple.
+	GetHandler() Handler
+}

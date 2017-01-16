@@ -55,7 +55,7 @@ func (b *SlackConnector) loadHandlers() {
 }
 
 // Excuse comes up with an excuse of why something failed.
-func (c *SlackConnector) Excuse(m messages.Message, err error) {
+func (c *SlackConnector) Excuse(m interfaces.Message, err error) {
 	c.logger.Error(err)
 
 	c.Post(
@@ -74,36 +74,21 @@ func (c *SlackConnector) processIMOpen(ev *slack.IMOpenEvent) {
 // ProcessMessage processes incoming messages events and calls the appropriate
 // handlers.
 func (c *SlackConnector) processMessage(ev *slack.MessageEvent) {
-	// Ignore messages from the bot itself.
-	if ev.User == c.slackInfo.User.ID {
-		return
-	}
+	message := NewSlackMessage(
+		ev,
+		c.slackInfo.User.ID,
+		&c.imChannelIDs,
+	)
 
-	// If the message is an IM, use IM handlers.
-	if _, ok := c.imChannelIDs[ev.Channel]; ok {
-		handled := false
+	processMessage(c, message)
+}
 
-		for _, tuple := range c.imHandlers {
-			if result := tuple.Pattern.FindStringSubmatch(ev.Text); result != nil {
-				go tuple.Handler(c, messages.NewSlackMessage(ev), result)
+func (c *SlackConnector) GetHandlers() []interfaces.HandlerTuple {
+	return c.handlers
+}
 
-				handled = true
-			}
-		}
-
-		// On an IM, we will show a small help message if no handlers are found.
-		if handled == false {
-			go c.HandleUsage(messages.NewSlackMessage(ev), []string{})
-		}
-
-		return
-	}
-
-	for _, tuple := range c.handlers {
-		if result := tuple.Pattern.FindStringSubmatch(ev.Text); result != nil {
-			go tuple.Handler(c, messages.NewSlackMessage(ev), result)
-		}
-	}
+func (c *SlackConnector) GetIMHandlers() []interfaces.HandlerTuple {
+	return c.imHandlers
 }
 
 // GetModules returns the modules used in this bot.
@@ -131,7 +116,7 @@ func (c *SlackConnector) GetSlack() *slack.Client {
 }
 
 // HandleUsage shows usage tip.
-func (c *SlackConnector) HandleUsage(m messages.Message, matches []string) {
+func (c *SlackConnector) HandleUsage(m interfaces.Message, matches []string) {
 	c.Post(
 		m.GetChannel(),
 		"Hi. For usage information, type `help`.",

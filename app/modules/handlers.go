@@ -30,6 +30,16 @@ type HandlerTuple struct {
 	Handler interfaces.Handler
 }
 
+// GetPattern returns the regular expression pattern in this tuple.
+func (t HandlerTuple) GetPattern() *regexp.Regexp {
+	return t.Pattern
+}
+
+// GetHandler returns the Handler in this tuple.
+func (t HandlerTuple) GetHandler() interfaces.Handler {
+	return t.Handler
+}
+
 // RegexBuilder is a function to be provided by Connector implementations while
 // using CompileHeaders. It allows the Connector to modify any regular
 // expressions before they are added to the matcher lists.
@@ -43,9 +53,9 @@ type RegexBuilder func(matcherType MatcherType, pattern string) *regexp.Regexp
 func CompileHandlers(
 	modules []interfaces.Module,
 	builder RegexBuilder,
-) ([]HandlerTuple, []HandlerTuple) {
-	handlers := []HandlerTuple{}
-	imHandlers := []HandlerTuple{}
+) ([]interfaces.HandlerTuple, []interfaces.HandlerTuple) {
+	handlers := []interfaces.HandlerTuple{}
+	imHandlers := []interfaces.HandlerTuple{}
 
 	for _, module := range modules {
 		for _, command := range module.GetCommands() {

@@ -45,7 +45,7 @@ func (c *LookupCommand) GetMentionMatchers() []string {
 
 // GetHandler returns the handler for this command.
 func (c *LookupCommand) GetHandler() interfaces.Handler {
-	return func(s interfaces.Bot, m messages.Message, matches []string) {
+	return func(s interfaces.Bot, m interfaces.Message, matches []string) {
 		s.StartTyping(m.GetChannel())
 
 		conn, err := s.GetGonduit()
