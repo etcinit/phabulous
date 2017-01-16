@@ -5,10 +5,7 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/etcinit/phabulous/app/connectors"
 	"github.com/etcinit/phabulous/app/factories"
-	"github.com/etcinit/phabulous/app/interfaces"
-	"github.com/etcinit/phabulous/app/modules/core"
-	"github.com/etcinit/phabulous/app/modules/dev"
-	"github.com/etcinit/phabulous/app/modules/extension"
+	"github.com/etcinit/phabulous/app/modules"
 	"github.com/jacobstr/confer"
 )
 
@@ -60,11 +57,9 @@ func (p *Phabulous) Boot(c *cli.Context) {
 		))
 	}
 
-	p.ConnectorManager.LoadModules([]interfaces.Module{
-		&core.Module{},
-		&dev.Module{},
-		&extension.Module{},
-	})
+	p.ConnectorManager.LoadModules(
+		modules.NewModuleFactory(p.Config, p.Logger).Make(),
+	)
 
 	p.Logger.Debugln("Booted upper layer.")
 }

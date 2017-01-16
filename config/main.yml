@@ -18,6 +18,17 @@ server:
 
   # Serious-mode makes some messages more formal and business-friendly.
   serious: false
+
+  # Modules to be loaded by the bot. Each module provides a set of commands for
+  # the bot. To enable/disable a module, simply uncomment/comment the lines
+  # below.
+  modules:
+    # Provides the essential functionality of the bot.
+    - core
+    # Provides integration with the Phabricator expension.
+    - extension
+    # Provides commands useful for the development of Phabulous.
+    # - dev
 slack:
   token: YOUR_TOKEN_HERE
   username: phabulous
