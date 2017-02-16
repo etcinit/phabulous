@@ -80,5 +80,12 @@ channels:
   # tasks to the specified channel.
   projects:
     10: '#anotherchannel'
+core:
+  summon:
+    # Expand projects while summoning by listing all their members.
+    #
+    # Some organizations might have very large projects, making this very
+    # impractical. Therefore, it can be disabled below.
+    expandProjects: true
 misc:
   ignore-ca: false

@@ -145,7 +145,7 @@ func (c *SummonCommand) getReviewerNames(
 	}
 
 	reviewerNames := []string{}
-	reviewerMap, err := c.getReviewerPHIDs(conn, revision)
+	reviewerMap, err := c.getReviewerPHIDs(bot, conn, revision)
 
 	if err != nil {
 		return nil, err
@@ -180,11 +180,13 @@ func (c *SummonCommand) getReviewerNames(
 // reviewers attached to them, and that if projects are used, they have a
 // moderate amount of users as well.
 func (c *SummonCommand) getReviewerPHIDs(
+	bot interfaces.Bot,
 	conn *gonduit.Conn,
 	revision *entities.DifferentialRevision,
 ) (map[string]string, error) {
 	reviewerMap := map[string]string{}
 	projects := []string{}
+	expandProjects := bot.GetConfig().GetBool("core.summon.expandProjects")
 
 	// We query all PHIDs in batch to avoid spamming the Phabricator server with
 	// individual requests.
@@ -198,7 +200,7 @@ func (c *SummonCommand) getReviewerPHIDs(
 
 	for reviewerPHID, queryResult := range allRes {
 		// If the PHID is a project, we will keep it for later.
-		if queryResult.Type == "PROJ" {
+		if queryResult.Type == "PROJ" && expandProjects {
 			projects = append(projects, reviewerPHID)
 
 			continue
