@@ -22,6 +22,9 @@ slack:
   token: YOUR_TOKEN_HERE
   username: phabulous
 
+  # Use this flag to enable/disable the Slack connector.
+  enable: true
+
   # If you would like the bot messages to be consistent, you can make it use
   # the same account for posting both feed messages and real time commands.
   #
@@ -32,6 +35,16 @@ slack:
   # webhooks). This allows it to post on almost any channel without having to
   # be invited.
   as-user: true
+irc:
+  # Use this flag to enable/disable the IRC connector.
+  enable: false
+
+  nick: phabulous
+
+  hostname: some.irc.server
+  #password: somethingsecret
+  port: 6667
+  tls: true
 conduit:
   api: https://phabricator.replace.me
 

@@ -20,8 +20,6 @@ type Phabulous struct {
 	Logger           *logrus.Logger            `inject:""`
 	GonduitFactory   *factories.GonduitFactory `inject:""`
 	ConnectorManager *ConnectorManager         `inject:""`
-
-	SlackConnector *connectors.SlackConnector
 }
 
 // Boot the upper part of the application.
@@ -46,13 +44,21 @@ func (p *Phabulous) Boot(c *cli.Context) {
 		p.Logger.Level = logrus.WarnLevel
 	}
 
-	p.SlackConnector = connectors.NewSlackConnector(
-		p.Config,
-		p.GonduitFactory,
-		p.Logger,
-	)
+	if p.Config.GetBool("slack.enable") {
+		p.ConnectorManager.RegisterConnector(connectors.NewSlackConnector(
+			p.Config,
+			p.GonduitFactory,
+			p.Logger,
+		))
+	}
 
-	p.ConnectorManager.RegisterConnector(p.SlackConnector)
+	if p.Config.GetBool("irc.enable") {
+		p.ConnectorManager.RegisterConnector(connectors.NewIRCConnector(
+			p.Config,
+			p.GonduitFactory,
+			p.Logger,
+		))
+	}
 
 	p.ConnectorManager.LoadModules([]interfaces.Module{
 		&core.Module{},

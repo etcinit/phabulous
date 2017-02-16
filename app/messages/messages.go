@@ -1,6 +1,9 @@
 package messages
 
-import "github.com/nlopes/slack"
+import (
+	"github.com/fluffle/goirc/client"
+	"github.com/nlopes/slack"
+)
 
 type Message interface {
 	GetChannel() string
@@ -11,6 +14,10 @@ type Message interface {
 
 func NewSlackMessage(ev *slack.MessageEvent) *SlackMessage {
 	return &SlackMessage{ev}
+}
+
+func NewIRCMessage(line *client.Line) *IRCMessage {
+	return &IRCMessage{line}
 }
 
 type SlackMessage struct {
@@ -31,4 +38,24 @@ func (m *SlackMessage) GetContent() string {
 
 func (m *SlackMessage) GetProviderName() string {
 	return "slack"
+}
+
+type IRCMessage struct {
+	line *client.Line
+}
+
+func (m *IRCMessage) GetChannel() string {
+	return m.line.Target()
+}
+
+func (m *IRCMessage) GetUserId() string {
+	return m.line.Nick
+}
+
+func (m *IRCMessage) GetContent() string {
+	return m.line.Text()
+}
+
+func (m *IRCMessage) GetProviderName() string {
+	return "irc"
 }
