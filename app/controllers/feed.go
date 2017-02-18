@@ -3,8 +3,8 @@ package controllers
 import (
 	"github.com/Sirupsen/logrus"
 	"github.com/etcinit/gonduit/constants"
-	"github.com/etcinit/phabulous/app/bot"
 	"github.com/etcinit/phabulous/app/factories"
+	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
 	"github.com/etcinit/phabulous/app/resolvers"
 	"github.com/gin-gonic/gin"
@@ -14,12 +14,13 @@ import (
 // FeedController handles feed webhook routes
 type FeedController struct {
 	Config       *confer.Config                  `inject:""`
-	Slacker      *bot.SlackService               `inject:""`
 	Factory      *factories.GonduitFactory       `inject:""`
 	Commits      *resolvers.CommitResolver       `inject:""`
 	Tasks        *resolvers.TaskResolver         `inject:""`
 	Differential *resolvers.DifferentialResolver `inject:""`
 	Logger       *logrus.Logger                  `inject:""`
+
+	Connector interfaces.Connector
 }
 
 // Register registers the route handlers for this controller
@@ -59,7 +60,7 @@ func (f *FeedController) postReceive(c *gin.Context) {
 	phidType := constants.PhidType(res.Type)
 	icon := messages.PhidTypeToIcon(phidType)
 
-	f.Slacker.FeedPost(storyText)
+	f.Connector.PostOnFeed(storyText)
 
 	switch phidType {
 	case constants.PhidTypeCommit:
@@ -69,14 +70,14 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		}
 
 		if channelName != "" {
-			f.Slacker.SimplePost(channelName, storyText, icon, false)
+			f.Connector.Post(channelName, storyText, icon, false)
 		}
 
 		// Support "all" channel.
 		channelMap := f.Config.GetStringMapString("channels.repositories")
 
 		if channelName, ok := channelMap["all"]; ok == true {
-			f.Slacker.SimplePost(channelName, storyText, icon, false)
+			f.Connector.Post(channelName, storyText, icon, false)
 		}
 		break
 	case constants.PhidTypeTask:
@@ -86,7 +87,7 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		}
 
 		if channelName != "" {
-			f.Slacker.SimplePost(channelName, storyText, icon, false)
+			f.Connector.Post(channelName, storyText, icon, false)
 		}
 		break
 	case constants.PhidTypeDifferentialRevision:
@@ -96,14 +97,14 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		}
 
 		if channelName != "" {
-			f.Slacker.SimplePost(channelName, storyText, icon, false)
+			f.Connector.Post(channelName, storyText, icon, false)
 		}
 
 		// Support "all" channel.
 		channelMap := f.Config.GetStringMapString("channels.repositories")
 
 		if channelName, ok := channelMap["all"]; ok == true {
-			f.Slacker.SimplePost(channelName, storyText, icon, false)
+			f.Connector.Post(channelName, storyText, icon, false)
 		}
 		break
 	}

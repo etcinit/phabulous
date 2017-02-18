@@ -18,9 +18,23 @@ server:
 
   # Serious-mode makes some messages more formal and business-friendly.
   serious: false
+
+  # Modules to be loaded by the bot. Each module provides a set of commands for
+  # the bot. To enable/disable a module, simply uncomment/comment the lines
+  # below.
+  modules:
+    # Provides the essential functionality of the bot.
+    - core
+    # Provides integration with the Phabricator extension.
+    # - extension
+    # Provides commands useful for the development of Phabulous.
+    # - dev
 slack:
   token: YOUR_TOKEN_HERE
   username: phabulous
+
+  # Use this flag to enable/disable the Slack connector.
+  enable: true
 
   # If you would like the bot messages to be consistent, you can make it use
   # the same account for posting both feed messages and real time commands.
@@ -32,6 +46,16 @@ slack:
   # webhooks). This allows it to post on almost any channel without having to
   # be invited.
   as-user: true
+irc:
+  # Use this flag to enable/disable the IRC connector.
+  enable: false
+
+  nick: phabulous
+
+  hostname: some.irc.server
+  #password: somethingsecret
+  port: 6667
+  tls: true
 conduit:
   api: https://phabricator.replace.me
 
@@ -56,5 +80,16 @@ channels:
   # tasks to the specified channel.
   projects:
     10: '#anotherchannel'
+core:
+  summon:
+    # Expand projects while summoning by listing all their members.
+    #
+    # Some organizations might have very large projects, making this very
+    # impractical. Therefore, it can be disabled below.
+    expandProjects: true
+
+    # By default, Phabulous excludes the requestor's username. You can disable
+    # this behavior below.
+    includeSelf: false
 misc:
   ignore-ca: false

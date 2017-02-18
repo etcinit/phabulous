@@ -1,5 +1,5 @@
 all:
-	gox --os="linux darwin freebsd" --output="build/{{.Dir}}_{{.OS}}_{{.Arch}}" ./cmd/phabulous
+	goxc go-test xc archive rmbin
 
 clean:
-	rm -r build
+	rm -rf dist

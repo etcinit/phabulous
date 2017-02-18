@@ -13,6 +13,9 @@ import (
 	"github.com/jacobstr/confer"
 )
 
+// VERSION is the application version string.
+var VERSION string
+
 func main() {
 	// Seed rand.
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -27,8 +30,6 @@ func main() {
 	logger := logrus.New()
 
 	// Next, we setup the dependency graph
-	// In this example, the graph won't have many nodes, but on more complex
-	// applications it becomes more useful.
 	var g inject.Graph
 	var phabulous app.Phabulous
 	g.Provide(
@@ -47,7 +48,7 @@ func main() {
 	app.Usage = "A Phabricator bot in Go"
 
 	// Set version and authorship info
-	app.Version = "2.4.0-beta1"
+	app.Version = VERSION
 	app.Author = "Eduardo Trujillo <ed@chromabits.com>"
 
 	// Setup the default action. This action will be triggered when no

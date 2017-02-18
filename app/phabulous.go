@@ -3,18 +3,20 @@ package app
 import (
 	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
-	"github.com/etcinit/phabulous/app/bot"
+	"github.com/etcinit/phabulous/app/connectors"
+	"github.com/etcinit/phabulous/app/factories"
+	"github.com/etcinit/phabulous/app/modules"
 	"github.com/jacobstr/confer"
-	"github.com/nlopes/slack"
 )
 
 // Phabulous is the root node of the DI graph
 type Phabulous struct {
-	Config  *confer.Config    `inject:""`
-	Engine  *EngineService    `inject:""`
-	Serve   *ServeService     `inject:""`
-	Slacker *bot.SlackService `inject:""`
-	Logger  *logrus.Logger    `inject:""`
+	Config           *confer.Config            `inject:""`
+	Engine           *EngineService            `inject:""`
+	Serve            *ServeService             `inject:""`
+	Logger           *logrus.Logger            `inject:""`
+	GonduitFactory   *factories.GonduitFactory `inject:""`
+	ConnectorManager *ConnectorManager         `inject:""`
 }
 
 // Boot the upper part of the application.
@@ -39,8 +41,24 @@ func (p *Phabulous) Boot(c *cli.Context) {
 		p.Logger.Level = logrus.WarnLevel
 	}
 
-	p.Slacker.Slack = slack.New(
-		p.Config.GetString("slack.token"),
+	if p.Config.GetBool("slack.enable") {
+		p.ConnectorManager.RegisterConnector(connectors.NewSlackConnector(
+			p.Config,
+			p.GonduitFactory,
+			p.Logger,
+		))
+	}
+
+	if p.Config.GetBool("irc.enable") {
+		p.ConnectorManager.RegisterConnector(connectors.NewIRCConnector(
+			p.Config,
+			p.GonduitFactory,
+			p.Logger,
+		))
+	}
+
+	p.ConnectorManager.LoadModules(
+		modules.NewModuleFactory(p.Config, p.Logger).Make(),
 	)
 
 	p.Logger.Debugln("Booted upper layer.")
