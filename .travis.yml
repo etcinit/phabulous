@@ -1,6 +1,7 @@
 language: go
 
-before_script: go get github.com/laher/goxc
+install: go get ./... && go get github.com/stretchr/testify
+script: go test ./...
 
 go:
   - 1.x
