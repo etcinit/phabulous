@@ -1,5 +1,7 @@
 language: go
 
+before_script: go get github.com/laher/goxc
+
 go:
   - 1.x
   - 1.6
