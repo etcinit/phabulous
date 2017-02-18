@@ -118,7 +118,7 @@ func (c *SummonCommand) GetHandler() interfaces.Handler {
 			fmt.Sprintf(
 				"*@%s summons %s to review D%s:*\n_%s (%s)_\n%s",
 				userName,
-				strings.Join(reviewerNames, ", "),
+				c.namesToString(reviewerNames),
 				matches[1],
 				revision.Title,
 				revision.StatusName,
@@ -128,6 +128,16 @@ func (c *SummonCommand) GetHandler() interfaces.Handler {
 			true,
 		)
 	}
+}
+
+// namesToString converts the list of names into a single string, providing a
+// default value for when the list is empty.
+func (c *SummonCommand) namesToString(names []string) string {
+	if len(names) == 0 {
+		return "(nobody)"
+	}
+
+	return strings.Join(names, ", ")
 }
 
 // getReviewerNames does a lot of magic to give us a pretty list of reviewers
@@ -151,15 +161,19 @@ func (c *SummonCommand) getReviewerNames(
 		return nil, err
 	}
 
+	includeSelf := bot.GetConfig().GetBool("core.summon.includeSelf")
+
 	for reviewerPHID, reviewerName := range reviewerMap {
 		// Prevent the author from embarassing themselves.
-		if revision.AuthorPHID == reviewerPHID {
+		if !includeSelf && revision.AuthorPHID == reviewerPHID {
 			continue
 		}
 
 		// Attempt to match on Slack.
 		if m, ok := c.findOnSlack(bot, slackMap, &slackUsers, reviewerPHID); ok {
 			reviewerNames = append(reviewerNames, m)
+
+			continue
 		}
 
 		// Otherwise, use their Phabricator username.

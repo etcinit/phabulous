@@ -87,5 +87,9 @@ core:
     # Some organizations might have very large projects, making this very
     # impractical. Therefore, it can be disabled below.
     expandProjects: true
+
+    # By default, Phabulous excludes the requestor's username. You can disable
+    # this behavior below.
+    includeSelf: false
 misc:
   ignore-ca: false
