@@ -3,7 +3,7 @@
 	"Tasks": [
 		"xc"
 	],
-	"BuildConstraints": "linux windows darwin",
+	"BuildConstraints": "linux windows darwin freebsd",
 	"TaskSettings": {
 		"xc": {
 			"GOARM": "7"
