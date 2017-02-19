@@ -45,8 +45,9 @@ go get github.com/etcinit/phabulous/cmd/phabulous
 
 // or, for cross-compiling:
 
-go get github.com/mitchellh/gox
+go get github.com/laher/goxc
 git clone git@github.com:etcinit/phabulous.git
 cd phabulous
+go get ./... && go get github.com/stretchr/testify
 make
 ```
