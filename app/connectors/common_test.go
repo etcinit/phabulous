@@ -2,6 +2,7 @@ package connectors
 
 import (
 	"regexp"
+	"sync"
 	"testing"
 
 	"github.com/etcinit/phabulous/app/interfaces"
@@ -73,7 +74,7 @@ func Test_processMessage_WithHandledIM(t *testing.T) {
 		mockTuple,
 	})
 
-	ran := make(chan bool)
+	var wg sync.WaitGroup
 
 	pattern, _ := regexp.Compile("Hello World")
 	mockTuple.EXPECT().GetPattern().Times(1).Return(pattern)
@@ -83,18 +84,22 @@ func Test_processMessage_WithHandledIM(t *testing.T) {
 			assert.Equal(t, msg, mockMsg)
 			assert.Equal(t, result, []string{"Hello World"})
 
-			ran <- true
+			wg.Done()
 		},
 	)
 
+	wg.Add(1)
+
 	processMessage(mockBot, mockMsg)
 
-	<-ran
+	wg.Wait()
 }
 
 func Test_processMessage_WithUnhandledIM(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
+
+	var wg sync.WaitGroup
 
 	mockBot := mocks.NewMockBot(mockCtrl)
 	mockMsg := mocks.NewMockMessage(mockCtrl)
@@ -107,5 +112,14 @@ func Test_processMessage_WithUnhandledIM(t *testing.T) {
 		[]interfaces.HandlerTuple{},
 	)
 
+	wg.Add(1)
+	mockBot.EXPECT().GetUsageHandler().Times(1).Return(
+		func(b interfaces.Bot, m interfaces.Message, matches []string) {
+			wg.Done()
+		},
+	)
+
 	processMessage(mockBot, mockMsg)
+
+	wg.Wait()
 }

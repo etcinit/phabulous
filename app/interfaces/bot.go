@@ -28,9 +28,9 @@ type Bot interface {
 	// ignore it.
 	StartTyping(channelID string)
 
-	// HandleUsage executes a command usually shown when no other command is
-	// matched.
-	HandleUsage(m Message, matches []string)
+	// GetUsageHandler returns a handler to be used for when no other handlers are
+	// matched. This handler usually posts some for of help message.
+	GetUsageHandler() Handler
 
 	// Excuse can be used as an error reporter by commands. It posts to the
 	// channel a message was received from that an error ocurred and logs the

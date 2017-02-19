@@ -28,7 +28,7 @@ func processMessage(conn interfaces.Bot, msg interfaces.Message) {
 
 		// On an IM, we will show a small help message if no handlers are found.
 		if handled == false {
-			go conn.HandleUsage(msg, []string{})
+			go conn.GetUsageHandler()(conn, msg, []string{})
 		}
 
 		return

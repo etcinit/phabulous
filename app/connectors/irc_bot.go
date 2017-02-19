@@ -53,33 +53,36 @@ func (c *IRCConnector) GetConfig() *confer.Config {
 }
 
 // GetModules returns the modules used in this bot.
-func (b *IRCConnector) GetModules() []interfaces.Module {
-	return b.modules
+func (c *IRCConnector) GetModules() []interfaces.Module {
+	return c.modules
 }
 
 // GetUsername returns the username of the user specified.
 //
 // Since the IRC connector uses usernames as user IDs, this method is just
 // an identity function.
-func (c *IRCConnector) GetUsername(userId string) (string, error) {
-	return userId, nil
+func (c *IRCConnector) GetUsername(userID string) (string, error) {
+	return userID, nil
 }
 
-// HandleUsage shows usage tip.
-func (c *IRCConnector) HandleUsage(m interfaces.Message, matches []string) {
-	c.Post(
-		m.GetChannel(),
-		"Hi. For usage information, type `help`.",
-		messages.IconTasks,
-		true,
-	)
+// GetUsageHandler returns a handler to be used for when no other handlers are
+// matched. This handler usually posts some for of help message.
+func (c *IRCConnector) GetUsageHandler() interfaces.Handler {
+	return func(b interfaces.Bot, m interfaces.Message, matches []string) {
+		c.Post(
+			m.GetChannel(),
+			"Hi. For usage information, type `help`.",
+			messages.IconTasks,
+			true,
+		)
+	}
 }
 
 // StartTyping notifies the network that the bot is typing.
 //
 // The IRC protocol does not provide this feature, so include a dummy method to
 // satisfy the interface.
-func (b *IRCConnector) StartTyping(channel string) {}
+func (c *IRCConnector) StartTyping(channel string) {}
 
 // processMessage processes incoming messages events and calls the appropriate
 // handlers.

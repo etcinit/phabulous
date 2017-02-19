@@ -107,7 +107,7 @@ func (c *SummonCommand) GetHandler() interfaces.Handler {
 			return
 		}
 
-		userName, err := s.GetUsername(m.GetUserId())
+		userName, err := s.GetUsername(m.GetUserID())
 		if err != nil {
 			s.Excuse(m, err)
 			return

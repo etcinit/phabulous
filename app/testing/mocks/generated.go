@@ -92,6 +92,16 @@ func (_mr *_MockBotRecorder) GetModules() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetModules")
 }
 
+func (_m *MockBot) GetUsageHandler() interfaces.Handler {
+	ret := _m.ctrl.Call(_m, "GetUsageHandler")
+	ret0, _ := ret[0].(interfaces.Handler)
+	return ret0
+}
+
+func (_mr *_MockBotRecorder) GetUsageHandler() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetUsageHandler")
+}
+
 func (_m *MockBot) GetUsername(_param0 string) (string, error) {
 	ret := _m.ctrl.Call(_m, "GetUsername", _param0)
 	ret0, _ := ret[0].(string)
@@ -101,14 +111,6 @@ func (_m *MockBot) GetUsername(_param0 string) (string, error) {
 
 func (_mr *_MockBotRecorder) GetUsername(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetUsername", arg0)
-}
-
-func (_m *MockBot) HandleUsage(_param0 interfaces.Message, _param1 []string) {
-	_m.ctrl.Call(_m, "HandleUsage", _param0, _param1)
-}
-
-func (_mr *_MockBotRecorder) HandleUsage(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "HandleUsage", arg0, arg1)
 }
 
 func (_m *MockBot) Post(_param0 string, _param1 string, _param2 messages.Icon, _param3 bool) {
@@ -196,14 +198,14 @@ func (_mr *_MockMessageRecorder) GetProviderName() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetProviderName")
 }
 
-func (_m *MockMessage) GetUserId() string {
-	ret := _m.ctrl.Call(_m, "GetUserId")
+func (_m *MockMessage) GetUserID() string {
+	ret := _m.ctrl.Call(_m, "GetUserID")
 	ret0, _ := ret[0].(string)
 	return ret0
 }
 
-func (_mr *_MockMessageRecorder) GetUserId() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetUserId")
+func (_mr *_MockMessageRecorder) GetUserID() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetUserID")
 }
 
 func (_m *MockMessage) IsIM() bool {

@@ -115,14 +115,17 @@ func (c *SlackConnector) GetSlack() *slack.Client {
 	return c.slack
 }
 
-// HandleUsage shows usage tip.
-func (c *SlackConnector) HandleUsage(m interfaces.Message, matches []string) {
-	c.Post(
-		m.GetChannel(),
-		"Hi. For usage information, type `help`.",
-		messages.IconTasks,
-		true,
-	)
+// GetUsageHandler returns a handler to be used for when no other handlers are
+// matched. This handler usually posts some for of help message.
+func (c *SlackConnector) GetUsageHandler() interfaces.Handler {
+	return func(b interfaces.Bot, m interfaces.Message, matches []string) {
+		c.Post(
+			m.GetChannel(),
+			"Hi. For usage information, type `help`.",
+			messages.IconTasks,
+			true,
+		)
+	}
 }
 
 func (c *SlackConnector) GetUsername(userId string) (string, error) {

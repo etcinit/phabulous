@@ -20,7 +20,7 @@ func (m *SlackMessage) GetChannel() string {
 	return m.event.Channel
 }
 
-func (m *SlackMessage) GetUserId() string {
+func (m *SlackMessage) GetUserID() string {
 	return m.event.User
 }
 

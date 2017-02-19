@@ -61,7 +61,7 @@ func (t *WhoamiCommand) GetHandler() interfaces.Handler {
 		res, err := extensions.PhabulousFromSlack(
 			conn,
 			requests.PhabulousFromSlackRequest{
-				AccountIDs: []string{m.GetUserId()},
+				AccountIDs: []string{m.GetUserID()},
 			},
 		)
 		if err != nil {
