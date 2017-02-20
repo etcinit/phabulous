@@ -88,8 +88,8 @@ core:
     # impractical. Therefore, it can be disabled below.
     expandProjects: true
 
-    # By default, Phabulous excludes the requestor's username. You can disable
-    # this behavior below.
-    includeSelf: false
+    # By default, Phabulous does no exclude the requestor's username. You can
+    # disable this behavior below.
+    includeSelf: true
 misc:
   ignore-ca: false
