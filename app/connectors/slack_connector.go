@@ -8,6 +8,7 @@ import (
 	"github.com/nlopes/slack"
 )
 
+// NewSlackConnector constructs an instance of a SlackConnector.
 func NewSlackConnector(
 	config *confer.Config,
 	gonduitFactory *factories.GonduitFactory,
@@ -26,6 +27,7 @@ func NewSlackConnector(
 	return connector
 }
 
+// SlackConnector provides a connector service to Slack networks.
 type SlackConnector struct {
 	logger *logrus.Logger
 	config *confer.Config
@@ -43,7 +45,7 @@ type SlackConnector struct {
 	modules []interfaces.Module
 }
 
-// Boot handles RTM events in Slack.
+// Boot initializes the connector.
 func (c *SlackConnector) Boot() error {
 	c.logger.Infoln("Starting RTM handler...")
 

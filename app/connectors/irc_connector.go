@@ -12,18 +12,6 @@ import (
 	"github.com/jacobstr/confer"
 )
 
-type IRCConnector struct {
-	config         *confer.Config
-	gonduitFactory *factories.GonduitFactory
-	logger         *logrus.Logger
-
-	handlers   []interfaces.HandlerTuple
-	imHandlers []interfaces.HandlerTuple
-	modules    []interfaces.Module
-
-	client *irc.Conn
-}
-
 // NewIRCConnector constructs a new instance of an IRCConnector.
 func NewIRCConnector(
 	config *confer.Config,
@@ -39,6 +27,20 @@ func NewIRCConnector(
 	return &connector
 }
 
+// IRCConnector provides a connector service to IRC networks.
+type IRCConnector struct {
+	config         *confer.Config
+	gonduitFactory *factories.GonduitFactory
+	logger         *logrus.Logger
+
+	handlers   []interfaces.HandlerTuple
+	imHandlers []interfaces.HandlerTuple
+	modules    []interfaces.Module
+
+	client *irc.Conn
+}
+
+// Boot initializes the connector.
 func (c *IRCConnector) Boot() error {
 	c.logger.Info("Booting IRC connector...")
 
@@ -115,7 +117,7 @@ func (c *IRCConnector) joinConfiguredChannels() {
 		channels[channel] = true
 	}
 
-	for channel, _ := range channels {
+	for channel := range channels {
 		c.client.Join(channel)
 	}
 }

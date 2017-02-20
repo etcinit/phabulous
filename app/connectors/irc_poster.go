@@ -6,6 +6,7 @@ import (
 	"github.com/etcinit/phabulous/app/messages"
 )
 
+// Post posts a text message.
 func (c *IRCConnector) Post(
 	channelName string,
 	storyText string,
@@ -17,6 +18,7 @@ func (c *IRCConnector) Post(
 	}
 }
 
+// PostImage posts a message with an attached image.
 func (c *IRCConnector) PostImage(
 	channelName string,
 	storyText string,
@@ -31,6 +33,7 @@ func (c *IRCConnector) PostImage(
 	c.client.Privmsgln(channelName, imageURL)
 }
 
+// PostOnFeed posts a message on the bot's "feed" channel.
 func (c *IRCConnector) PostOnFeed(storyText string) error {
 	if c.GetFeedChannel() == "" {
 		return ErrMissingFeedChannel
