@@ -75,7 +75,7 @@ Loop:
 
 				c.logger.Infoln("Bot Slack ID: ", ev.Info.User.ID)
 
-				c.PostOnFeed("Hi! Phabulous v2 reporting for duty!")
+				c.PostOnFeed("Hi! Phabulous v3 reporting for duty!")
 			case *slack.MessageEvent:
 				c.logger.Debugf("Message: %v\n", ev)
 				c.processMessage(ev)
