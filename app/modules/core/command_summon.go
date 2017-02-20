@@ -8,6 +8,7 @@ import (
 	"github.com/etcinit/gonduit"
 	"github.com/etcinit/gonduit/entities"
 	"github.com/etcinit/gonduit/requests"
+	"github.com/etcinit/phabulous/app/connectors/utilities"
 	"github.com/etcinit/phabulous/app/gonduit/extensions"
 	phabulousRequests "github.com/etcinit/phabulous/app/gonduit/extensions/requests"
 	"github.com/etcinit/phabulous/app/gonduit/extensions/responses"
@@ -282,6 +283,12 @@ func (c *SummonCommand) lookupSlackMap(
 	conn *gonduit.Conn,
 	revision *entities.DifferentialRevision,
 ) (*responses.PhabulousToSlackResponse, []slack.User, error) {
+	// If the extension module is not loaded, we don't attempt to use this
+	// functionality.
+	if !utilities.HasModule(bot, "extension") {
+		return &responses.PhabulousToSlackResponse{}, []slack.User{}, nil
+	}
+
 	var slackMap *responses.PhabulousToSlackResponse
 	var slackUsers []slack.User
 	var err error
