@@ -70,6 +70,18 @@ channels:
   # channel. Leave it blank to disable this feature.
   feed: '#phabricator'
 
+  # You can filter events posted on the feed channel by specifying allowed
+  # event types:
+  #
+  # feedTypes:
+  #   - 'DREV'
+  #   - 'TASK'
+  #   - 'CMIT'
+  #
+  # Set it to an empty array to allow all events (default).
+  #
+  feedTypes: []
+
   # You can map repositories to a channel. This will send feed events regarding
   # commits and revisions to the specified channel.
   repositories:

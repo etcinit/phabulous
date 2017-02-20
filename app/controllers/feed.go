@@ -60,7 +60,9 @@ func (f *FeedController) postReceive(c *gin.Context) {
 	phidType := constants.PhidType(res.Type)
 	icon := messages.PhidTypeToIcon(phidType)
 
-	f.Connector.PostOnFeed(storyText)
+	if typeAllowed(f.Config, res.Type) {
+		f.Connector.PostOnFeed(storyText)
+	}
 
 	switch phidType {
 	case constants.PhidTypeCommit:
@@ -115,4 +117,23 @@ func (f *FeedController) postReceive(c *gin.Context) {
 			"OK",
 		},
 	})
+}
+
+// typeAllowed returns whether a feed event should be processed in the main
+// feed channel.
+func typeAllowed(config *confer.Config, currentType string) bool {
+	allowedTypes := config.GetStringSlice("channels.feedTypes")
+
+	// If no filters are specified, everything is allowed.
+	if len(allowedTypes) == 0 {
+		return true
+	}
+
+	for _, eventType := range allowedTypes {
+		if eventType == currentType {
+			return true
+		}
+	}
+
+	return false
 }
