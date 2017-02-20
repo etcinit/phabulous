@@ -10,7 +10,7 @@ import (
 // request due to an unexpected error.
 func GetExcuse(config *confer.Config) string {
 	if config.GetBool("server.serious") {
-		return "An error ocurred and I was unable to fulfill your request."
+		return "An error occurred and I was unable to fulfill your request."
 	}
 
 	excuses := []string{

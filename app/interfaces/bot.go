@@ -33,7 +33,7 @@ type Bot interface {
 	GetUsageHandler() Handler
 
 	// Excuse can be used as an error reporter by commands. It posts to the
-	// channel a message was received from that an error ocurred and logs the
+	// channel a message was received from that an error occurred and logs the
 	// error using the application logger.
 	Excuse(Message, error)
 

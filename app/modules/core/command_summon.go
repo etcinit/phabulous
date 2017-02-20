@@ -165,7 +165,7 @@ func (c *SummonCommand) getReviewerNames(
 	includeSelf := bot.GetConfig().GetBool("core.summon.includeSelf")
 
 	for reviewerPHID, reviewerName := range reviewerMap {
-		// Prevent the author from embarassing themselves.
+		// Prevent the author from embarrassing themselves.
 		if !includeSelf && revision.AuthorPHID == reviewerPHID {
 			continue
 		}
