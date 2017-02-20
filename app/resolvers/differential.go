@@ -43,7 +43,7 @@ func (c *DifferentialResolver) Resolve(phid string) (string, error) {
 	}
 
 	// If the response contains a repository, try to match it
-	if len(*repos) !=0 {
+	if len(*repos) != 0 {
 		channelMap := c.Config.GetStringMapString("channels.repositories")
 
 		if channelName, ok := channelMap[(*repos)[0].Callsign]; ok == true {
@@ -52,16 +52,20 @@ func (c *DifferentialResolver) Resolve(phid string) (string, error) {
 	}
 
 	// Look for a project if the repository didn't match
-	if projects, ok := revision.Auxiliary["phabricator:projects"];
-			ok == true && len(projects) != 0 {
+	projects, ok := revision.Auxiliary["phabricator:projects"]
+
+	if ok == true && len(projects) != 0 {
 		res, err := conduit.ProjectQuery(requests.ProjectQueryRequest{
 			PHIDs: []string{projects[0]},
 		})
+
 		if err != nil {
 			return "", err
 		}
+
 		if proj, ok := res.Data[projects[0]]; ok == true {
 			channelMap := c.Config.GetStringMapString("channels.projects")
+
 			if channelName, ok := channelMap[proj.Name]; ok == true {
 				return channelName, nil
 			}
