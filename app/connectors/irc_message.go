@@ -7,7 +7,7 @@ func NewIRCMessage(line *client.Line, self string) *IRCMessage {
 	return &IRCMessage{line, self}
 }
 
-// IRCMessage is Phabulous's representation of an IRCMessage. This
+// IRCMessage is Phabulous's representation of an IRC message. This
 // implementation is mainly a wrapper over the message struct provided by the
 // IRC client library.
 type IRCMessage struct {

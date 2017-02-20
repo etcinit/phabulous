@@ -13,7 +13,7 @@ func Test_NewIRCMessage(t *testing.T) {
 	NewIRCMessage(line, "phabulous")
 }
 
-func Test_GetChannel(t *testing.T) {
+func Test_IRCMessage_GetChannel(t *testing.T) {
 	line := &client.Line{
 		Cmd:  client.PRIVMSG,
 		Nick: "#somechannel",
@@ -25,7 +25,7 @@ func Test_GetChannel(t *testing.T) {
 	assert.Equal(t, "#somechannel", message.GetChannel())
 }
 
-func Test_GetUserID(t *testing.T) {
+func Test_IRCMessage_GetUserID(t *testing.T) {
 	line := &client.Line{
 		Nick: "bob",
 	}
@@ -35,7 +35,7 @@ func Test_GetUserID(t *testing.T) {
 	assert.Equal(t, "bob", message.GetUserID())
 }
 
-func Test_GetContent(t *testing.T) {
+func Test_IRCMessage_GetContent(t *testing.T) {
 	line := &client.Line{
 		Args: []string{"#room", "Awesome message"},
 	}
@@ -45,13 +45,13 @@ func Test_GetContent(t *testing.T) {
 	assert.Equal(t, "Awesome message", message.GetContent())
 }
 
-func Test_GetProvider(t *testing.T) {
+func Test_IRCMessage_GetProvider(t *testing.T) {
 	message := NewIRCMessage(&client.Line{}, "phabulous")
 
 	assert.Equal(t, "irc", message.GetProviderName())
 }
 
-func Test_IsIM(t *testing.T) {
+func Test_IRCMessage_IsIM(t *testing.T) {
 	line := &client.Line{
 		Cmd:  client.PRIVMSG,
 		Nick: "someone",
@@ -63,7 +63,7 @@ func Test_IsIM(t *testing.T) {
 	assert.True(t, message.IsIM())
 }
 
-func Test_IsSelf(t *testing.T) {
+func Test_IRCMessage_IsSelf(t *testing.T) {
 	line := &client.Line{
 		Cmd:  client.PRIVMSG,
 		Nick: "phabulous",
