@@ -1,7 +1,19 @@
 language: go
 
 install: go get -t -v ./...
-script: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+script: |
+  #!/usr/bin/env bash
+
+  set -e
+  echo "" > coverage.txt
+
+  for d in $(go list ./... | grep -v vendor); do
+      go test -race -coverprofile=profile.out -covermode=atomic $d
+      if [ -f profile.out ]; then
+          cat profile.out >> coverage.txt
+          rm profile.out
+      fi
+  done
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
