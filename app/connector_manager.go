@@ -23,7 +23,7 @@ func (c *ConnectorManager) RegisterConnector(connector interfaces.Connector) {
 	c.connectors = append(c.connectors, connector)
 }
 
-// LoadModule loads the provided modules on all the registered connectors.
+// LoadModules loads the provided modules on all the registered connectors.
 func (c *ConnectorManager) LoadModules(modules []interfaces.Module) {
 	for _, connector := range c.connectors {
 		connector.LoadModules(modules)
@@ -44,6 +44,7 @@ func (c *ConnectorManager) Boot() error {
 	return nil
 }
 
+// Post posts a text message.
 func (c *ConnectorManager) Post(
 	channelName string,
 	storyText string,
@@ -55,6 +56,7 @@ func (c *ConnectorManager) Post(
 	}
 }
 
+// PostImage posts a message with an attached image.
 func (c *ConnectorManager) PostImage(
 	channelName string,
 	storyText string,
@@ -67,6 +69,7 @@ func (c *ConnectorManager) PostImage(
 	}
 }
 
+// PostOnFeed posts a message on the bot's "feed" channel.
 func (c *ConnectorManager) PostOnFeed(storyText string) error {
 	for _, connector := range c.connectors {
 		result := connector.PostOnFeed(storyText)
