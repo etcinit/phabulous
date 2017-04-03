@@ -18,5 +18,6 @@ func (m *Module) GetCommands() []interfaces.Command {
 		&MemeCommand{},
 		&ModulesCommand{},
 		&HelpCommand{},
+		&TaskCommand{},
 	}
 }
