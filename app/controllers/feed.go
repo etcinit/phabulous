@@ -83,12 +83,11 @@ func (f *FeedController) postReceive(c *gin.Context) {
 		}
 		break
 	case constants.PhidTypeTask:
-		channelName, err := f.Tasks.Resolve(res.PHID)
+		channelNames, err := f.Tasks.Resolve(res.PHID)
 		if err != nil {
 			f.Logger.Error(err)
 		}
-
-		if channelName != "" {
+	    for _,channelName := range channelNames {
 			f.Connector.Post(channelName, storyText, icon, false)
 		}
 		break
