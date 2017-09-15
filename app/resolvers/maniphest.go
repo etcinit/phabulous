@@ -38,7 +38,7 @@ func (c *TaskResolver) Resolve(phid string) ([]string, error) {
 		return retVal, nil
 	}
 	channelMap := c.Config.GetStringMapString("channels.projects")
-
+    matches := 0
     for _, projectPHID := range task.ProjectPHIDs {
         projects, err := conduit.ProjectQuery(requests.ProjectQueryRequest{
 		    PHIDs: []string{projectPHID},
@@ -48,8 +48,11 @@ func (c *TaskResolver) Resolve(phid string) ([]string, error) {
     	}
         if channelName, ok := channelMap[projects.Data[projectPHID].ID]; ok == true {
 		    retVal = append(retVal, channelName)
+                    matches += 1
 	    }
     }
-
-	return retVal, nil
+    if (matches == 0) {
+        retVal = append(retVal, "")
+    }
+    return retVal, nil
 }
