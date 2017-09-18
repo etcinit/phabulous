@@ -4,14 +4,12 @@ import (
 	"github.com/etcinit/gonduit/requests"
 	"github.com/etcinit/phabulous/app/factories"
 	"github.com/jacobstr/confer"
-	"github.com/Sirupsen/logrus"
 )
 
 // TaskResolver resolves Maniphest tasks to Slack channels.
 type TaskResolver struct {
 	Config  *confer.Config            `inject:""`
 	Factory *factories.GonduitFactory `inject:""`
-    Logger  *logrus.Logger            `inject:""`
 }
 
 // Resolve resolves the channel the message about a task should be posted on.
@@ -38,6 +36,7 @@ func (c *TaskResolver) Resolve(phid string) ([]string, error) {
 		return retVal, nil
 	}
 	channelMap := c.Config.GetStringMapString("channels.projects")
+	defaultChannel := c.Config.GetString("channels.feed")
     matches := 0
     for _, projectPHID := range task.ProjectPHIDs {
         projects, err := conduit.ProjectQuery(requests.ProjectQueryRequest{
@@ -52,7 +51,7 @@ func (c *TaskResolver) Resolve(phid string) ([]string, error) {
 	    }
     }
     if (matches == 0) {
-        retVal = append(retVal, "")
+        retVal = append(retVal, defaultChannel)
     }
     return retVal, nil
 }
