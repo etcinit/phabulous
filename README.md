@@ -38,7 +38,7 @@ information about Phabulous.
 
 ## Compiling from source
 
-To compile Phabulous, you need a recent version of Go:
+To compile Phabulous, you need a recent version of Go (>= 1.7):
 
 ```
 go get github.com/etcinit/phabulous/cmd/phabulous
