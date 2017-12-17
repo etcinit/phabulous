@@ -12,12 +12,13 @@ import (
 
 func Test_IRCConnector_LoadModules(t *testing.T) {
 	connector := IRCConnector{}
-	connector.LoadModules([]interfaces.Module{&core.Module{}})
+	connector.LoadModules([]interfaces.Module{&core.Module{Config:connector.config}})
+	connector.config = confer.NewConfig()
 
 	assert.Equal(t, 0, len(connector.GetHandlers()))
 	assert.Equal(t, 0, len(connector.GetIMHandlers()))
 
-	modules := []interfaces.Module{&core.Module{}}
+	modules := []interfaces.Module{&core.Module{Config:connector.config}}
 
 	connector.client = client.SimpleClient("phabulous")
 	connector.LoadModules(modules)

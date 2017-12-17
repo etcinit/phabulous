@@ -42,11 +42,11 @@ func (f *ModuleFactory) Make() []interfaces.Module {
 		}
 
 		if moduleName == "core" {
-			moduleMap["core"] = &core.Module{}
+			moduleMap["core"] = &core.Module{f.config}
 		} else if moduleName == "dev" {
-			moduleMap["dev"] = &dev.Module{}
+			moduleMap["dev"] = &dev.Module{f.config}
 		} else if moduleName == "extension" {
-			moduleMap["extension"] = &extension.Module{}
+			moduleMap["extension"] = &extension.Module{f.config}
 		} else {
 			f.logger.Panicf(
 				"Unable to load modules. Unknown module '%s'.",
