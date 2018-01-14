@@ -47,7 +47,7 @@ func main() {
 	app.Usage = "A Phabricator bot in Go"
 
 	// Set version and authorship info
-	app.Version = "2.1.0-alpha1"
+	app.Version = "2.3.1"
 	app.Author = "Eduardo Trujillo <ed@chromabits.com>"
 
 	// Setup the default action. This action will be triggered when no
