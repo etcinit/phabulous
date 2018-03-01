@@ -1,6 +1,9 @@
 package connectors
 
-import "github.com/etcinit/phabulous/app/interfaces"
+import (
+	"github.com/etcinit/phabulous/app/interfaces"
+	"github.com/etcinit/phabulous/app/modules/utilities"
+)
 
 // processMessage processes incoming messages events and calls the appropriate
 // handlers.
@@ -17,12 +20,17 @@ func processMessage(conn interfaces.Bot, msg interfaces.Message) {
 		handled := false
 
 		for _, tuple := range conn.GetIMHandlers() {
+			var handledResults = []string{}
 			pattern := tuple.GetPattern()
+			if results := pattern.FindAllStringSubmatch(content, -1); results != nil {
 
-			if result := pattern.FindStringSubmatch(content); result != nil {
-				go tuple.GetHandler()(conn, msg, result)
-
-				handled = true
+				for _, result := range results {
+					if !utilities.Contains(handledResults, result) {
+						go tuple.GetHandler()(conn, msg, result)
+						handledResults = append(handledResults, utilities.UniqueItemsOf(result)...)
+						handled = true
+					}
+				}
 			}
 		}
 
@@ -36,9 +44,15 @@ func processMessage(conn interfaces.Bot, msg interfaces.Message) {
 
 	for _, tuple := range conn.GetHandlers() {
 		pattern := tuple.GetPattern()
+		var handledResults []string
 
-		if result := pattern.FindStringSubmatch(content); result != nil {
-			go tuple.GetHandler()(conn, msg, result)
+		if results := pattern.FindAllStringSubmatch(content, -1); results != nil {
+			for _, result := range results {
+				if !utilities.Contains(handledResults, result) {
+					go tuple.GetHandler()(conn, msg, result)
+
+				}
+			}
 		}
 	}
 }

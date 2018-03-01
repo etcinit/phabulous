@@ -1,9 +1,14 @@
 package dev
 
-import "github.com/etcinit/phabulous/app/interfaces"
+import (
+	"github.com/etcinit/phabulous/app/interfaces"
+	"github.com/jacobstr/confer"
+)
 
 // Module provides development/debugging commands.
-type Module struct{}
+type Module struct{
+	Config *confer.Config
+}
 
 // GetName returns the name of this module.
 func (m *Module) GetName() string {
