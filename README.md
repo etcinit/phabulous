@@ -38,7 +38,7 @@ information about Phabulous.
 
 ## Compiling from source
 
-To compile Phabulous, you need a recent version of Go (>= 1.7):
+To compile Phabulous, you need a recent version of [Go](https://golang.org/) (>= 1.9) and [dep](https://golang.github.io/dep/):
 
 ```
 go get github.com/etcinit/phabulous/cmd/phabulous
@@ -48,6 +48,5 @@ go get github.com/etcinit/phabulous/cmd/phabulous
 go get github.com/laher/goxc
 git clone git@github.com:etcinit/phabulous.git
 cd phabulous
-go get ./... && go get github.com/stretchr/testify
 make
 ```

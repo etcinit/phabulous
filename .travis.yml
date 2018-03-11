@@ -1,6 +1,5 @@
 language: go
 
-install: go get -t -v ./...
 script: |
   #!/usr/bin/env bash
 
@@ -18,5 +17,4 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
 
 go:
-  - 1.7
-  - 1.8
+  - 1.9
