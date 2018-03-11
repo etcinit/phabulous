@@ -96,7 +96,7 @@ username.
 			return
 		}
 
-		if res == nil {
+		if res == nil || len(*res) == 0 {
 			s.Post(
 				m.GetChannel(),
 				fmt.Sprintf("<@%s> doesn't appear to have any open tasks", username),
