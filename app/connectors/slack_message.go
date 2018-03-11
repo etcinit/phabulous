@@ -52,3 +52,8 @@ func (m *SlackMessage) IsIM() bool {
 func (m *SlackMessage) IsSelf() bool {
 	return m.event.User == m.self
 }
+
+// HasUser returns true if the message has a user.
+func (m *SlackMessage) HasUser() bool {
+	return m.event.User != ""
+}

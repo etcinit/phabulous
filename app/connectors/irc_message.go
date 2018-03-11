@@ -45,3 +45,8 @@ func (m *IRCMessage) IsIM() bool {
 func (m *IRCMessage) IsSelf() bool {
 	return m.line.Nick == m.self
 }
+
+// HasUser returns true if the message has a user.
+func (m *IRCMessage) HasUser() bool {
+	return m.line.Nick != ""
+}

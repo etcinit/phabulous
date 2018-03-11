@@ -32,6 +32,7 @@ func Test_processMessage_WithPublic(t *testing.T) {
 	mockTuple := mocks.NewMockHandlerTuple(mockCtrl)
 
 	mockMsg.EXPECT().IsSelf().Times(1).Return(false)
+	mockMsg.EXPECT().HasUser().Times(1).Return(true)
 	mockMsg.EXPECT().GetContent().Times(1).Return("Hello World")
 	mockMsg.EXPECT().IsIM().Times(1).Return(false)
 
@@ -58,6 +59,44 @@ func Test_processMessage_WithPublic(t *testing.T) {
 	<-ran
 }
 
+// Test_processMessage_SkipDuplicates asserts that multiple matches of the same element are only handled once.
+func Test_processMessage_SkipDuplicates(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	mockBot := mocks.NewMockBot(mockCtrl)
+	mockMsg := mocks.NewMockMessage(mockCtrl)
+	mockTuple := mocks.NewMockHandlerTuple(mockCtrl)
+
+	mockMsg.EXPECT().IsSelf().Times(1).Return(false)
+	mockMsg.EXPECT().HasUser().Times(1).Return(true)
+	mockMsg.EXPECT().GetContent().Times(1).Return("We have T1 and T100 and T100 again.")
+	mockMsg.EXPECT().IsIM().Times(1).Return(false)
+
+	mockBot.EXPECT().GetHandlers().Times(1).Return([]interfaces.HandlerTuple{
+		mockTuple,
+	})
+
+	ran := make(chan bool)
+
+	pattern, _ := regexp.Compile("([T|D][0-9]{1,16})")
+	mockTuple.EXPECT().GetPattern().Times(1).Return(pattern)
+	// we expect only two calls to GetHandler, even though the regex matches three times, T100 exists twice.
+	mockTuple.EXPECT().GetHandler().Times(2).Return(
+		func(bot interfaces.Bot, msg interfaces.Message, result []string) {
+			assert.Equal(t, bot, mockBot)
+			assert.Equal(t, msg, mockMsg)
+			assert.Contains(t, [][]string{{"T1"}, {"T100"}}, result)
+
+			ran <- true
+		},
+	)
+
+	processMessage(mockBot, mockMsg)
+
+	<-ran
+}
+
 func Test_processMessage_WithHandledIM(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
@@ -67,6 +106,7 @@ func Test_processMessage_WithHandledIM(t *testing.T) {
 	mockTuple := mocks.NewMockHandlerTuple(mockCtrl)
 
 	mockMsg.EXPECT().IsSelf().Times(1).Return(false)
+	mockMsg.EXPECT().HasUser().Times(1).Return(true)
 	mockMsg.EXPECT().GetContent().Times(1).Return("Hello World")
 	mockMsg.EXPECT().IsIM().Times(1).Return(true)
 
@@ -105,6 +145,7 @@ func Test_processMessage_WithUnhandledIM(t *testing.T) {
 	mockMsg := mocks.NewMockMessage(mockCtrl)
 
 	mockMsg.EXPECT().IsSelf().Times(1).Return(false)
+	mockMsg.EXPECT().HasUser().Times(1).Return(true)
 	mockMsg.EXPECT().GetContent().Times(1).Return("Hello World")
 	mockMsg.EXPECT().IsIM().Times(1).Return(true)
 

@@ -17,4 +17,6 @@ type Message interface {
 	IsIM() bool
 	// IsSelf returns true if the message was posted by the bot.
 	IsSelf() bool
+	// HasUser returns true if the message has a user.
+	HasUser() bool
 }

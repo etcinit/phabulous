@@ -1,5 +1,7 @@
 package utilities
 
+// UniqueItemsOf returns the given slice, with every element unique.
+// Duplicates are removed from the returned slice.
 func UniqueItemsOf(s []string) []string {
 	unique := make(map[string]bool, len(s))
 	uniques := make([]string, len(unique))
@@ -14,6 +16,8 @@ func UniqueItemsOf(s []string) []string {
 	return uniques
 }
 
+// Contains returns true, if all elements of slice2 exist in slice1.
+// Does not regard number of occurrences per element.
 func Contains(slice1 []string, slice2 []string) bool {
 	slice1Uniques := UniqueItemsOf(slice1)
 	slice2Uniques := UniqueItemsOf(slice2)

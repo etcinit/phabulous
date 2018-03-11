@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
-	"github.com/etcinit/phabulous/app/modules/utilities"
+	"github.com/etcinit/phabulous/app/utilities"
 )
 
 // LookupCommand allows users to lookup objects from Phabricator.
-type LookupCommand struct{
+type LookupCommand struct {
 	CustomMatchers []string
 }
 

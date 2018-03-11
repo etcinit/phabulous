@@ -8,12 +8,12 @@ import (
 	"github.com/etcinit/gonduit"
 	"github.com/etcinit/gonduit/entities"
 	"github.com/etcinit/gonduit/requests"
-	"github.com/etcinit/phabulous/app/connectors/utilities"
 	"github.com/etcinit/phabulous/app/gonduit/extensions"
 	phabulousRequests "github.com/etcinit/phabulous/app/gonduit/extensions/requests"
 	"github.com/etcinit/phabulous/app/gonduit/extensions/responses"
 	"github.com/etcinit/phabulous/app/interfaces"
 	"github.com/etcinit/phabulous/app/messages"
+	"github.com/etcinit/phabulous/app/utilities"
 	"github.com/nlopes/slack"
 )
 
@@ -142,7 +142,7 @@ func (c *SummonCommand) namesToString(names []string) string {
 }
 
 // getReviewerNames does a lot of magic to give us a pretty list of reviewers
-// that we can return in a message. Phbricator usernames will be used, projects
+// that we can return in a message. Phabricator usernames will be used, projects
 // will be expanded, and Slack usernames will be resolved if possible.
 func (c *SummonCommand) getReviewerNames(
 	bot interfaces.Bot,
@@ -155,7 +155,7 @@ func (c *SummonCommand) getReviewerNames(
 		return nil, err
 	}
 
-	reviewerNames := []string{}
+	var reviewerNames []string
 	reviewerMap, err := c.getReviewerPHIDs(bot, conn, revision)
 
 	if err != nil {
@@ -200,7 +200,7 @@ func (c *SummonCommand) getReviewerPHIDs(
 	revision *entities.DifferentialRevision,
 ) (map[string]string, error) {
 	reviewerMap := map[string]string{}
-	projects := []string{}
+	var projects []string
 	expandProjects := bot.GetConfig().GetBool("core.summon.expandProjects")
 
 	// We query all PHIDs in batch to avoid spamming the Phabricator server with
@@ -228,7 +228,7 @@ func (c *SummonCommand) getReviewerPHIDs(
 	// processing.
 	if len(projects) > 0 {
 		projectMembers := map[string]bool{}
-		projectMembersList := []string{}
+		var projectMembersList []string
 
 		// Batch request all projects.
 		projRes, err := conn.ProjectQuery(requests.ProjectQueryRequest{
