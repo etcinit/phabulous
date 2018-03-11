@@ -9,12 +9,18 @@ import (
 
 // LookupCommand allows users to lookup objects from Phabricator.
 type LookupCommand struct{
-	AdditionalMatchers []string
+	CustomMatchers []string
+}
+
+// GetDefaultMatchers returns the default matchers of the LookupCommand.
+func (c *LookupCommand) GetDefaultMatchers() []string {
+	defaultMatchers := []string{"^([T|D][0-9]{1,16})$"}
+	return defaultMatchers
 }
 
 // GetUsage returns the usage of this command.
 func (c *LookupCommand) GetUsage() string {
-	return "lookup (Txxx|Dxxx)"
+	return "(Txxx|Dxxx)"
 }
 
 // GetDescription returns the description of this command.
@@ -24,17 +30,16 @@ func (c *LookupCommand) GetDescription() string {
 
 // GetMatchers returns the matchers for this command.
 func (c *LookupCommand) GetMatchers() []string {
-	defaultMatchers := []string{"^([T|D][0-9]{1,16})$"}
-	if c.AdditionalMatchers != nil {
-		return append(defaultMatchers, c.AdditionalMatchers...)
+	if c.CustomMatchers != nil {
+		return c.CustomMatchers
 	}
-	return defaultMatchers
+
+	return c.GetDefaultMatchers()
 }
 
 // GetIMMatchers returns IM matchers for this command.
 func (c *LookupCommand) GetIMMatchers() []string {
 	return []string{
-		"^lookup\\s+([T|D][0-9]{1,16})$",
 		"^([T|D][0-9]{1,16})$",
 	}
 }
@@ -42,7 +47,6 @@ func (c *LookupCommand) GetIMMatchers() []string {
 // GetMentionMatchers returns the channel mention matchers for this command.
 func (c *LookupCommand) GetMentionMatchers() []string {
 	return []string{
-		"lookup\\s+([T|D][0-9]{1,16})",
 		"([T|D][0-9]{1,16})",
 	}
 }

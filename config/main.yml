@@ -108,6 +108,8 @@ misc:
 
 commands:
   lookup:
-    # override set of REGEXes used by lookup commands
+    # Override set of REGEXes used by the lookup command.
+    #
+    # To get the default behaviour of v2, set it to an empty array.
     matchers:
       - ([T|D][0-9]{1,16})+
