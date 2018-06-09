@@ -76,6 +76,16 @@ func main() {
 			Action:  phabulous.Serve.Run,
 		},
 	}
+	
+	
+	app.Commands = []cli.Command{
+		{
+			  name:          "serve",
+			Aliases: []string{"s", "server", "listen"},
+			Usage:   "Start the API server",
+		           	Action:  phabulous.Serve.Run,
+		},
+	        }
 
 	// Begin
 	app.Run(os.Args)
