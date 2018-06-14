@@ -1,6 +1,9 @@
 package entities
 
-import "github.com/etcinit/gonduit/util"
+import (
+	"encoding/json"
+	"github.com/etcinit/gonduit/util"
+)
 
 // DifferentialRevision represents a revision in Differential.
 type DifferentialRevision struct {
@@ -25,4 +28,23 @@ type DifferentialRevision struct {
 	Hashes         [][]string          `json:"hashes"`
 	Auxiliary      map[string][]string `json:"auxiliary"`
 	RepositoryPHID string              `json:"repositoryPHID"`
+}
+
+func (dr *DifferentialRevision) UnmarshalJSON(data []byte) error {
+	type Alias DifferentialRevision
+	temp := &struct {
+		Reviewers map[string]string `json:"reviewers"`
+		*Alias
+	}{
+		Alias: (*Alias)(dr),
+	}
+	if err := json.Unmarshal(data, &temp); err != nil {
+		return err
+	}
+
+	for reviewer := range temp.Reviewers {
+		dr.Reviewers = append(dr.Reviewers, reviewer)
+	}
+
+	return nil
 }
